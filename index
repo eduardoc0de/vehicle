@@ -1,0 +1,1346 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Calculadora Importación</title>
+
+    <style>
+        body {
+            background-color: #f2f2f7;
+            color: #000000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .ios-header {
+            font-size: 34px;
+            font-weight: 700;
+            color: #000;
+            padding: 20px 16px 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .segmented-control {
+            display: flex;
+            background-color: #e3e3e8;
+            border-radius: 9px;
+            padding: 2px;
+            margin: 16px;
+        }
+
+        .segment {
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+            padding: 6px 0;
+            border-radius: 7px;
+            color: #000;
+            cursor: pointer;
+        }
+
+        .segment.active {
+            background-color: #ffffff;
+            font-weight: 600;
+            box-shadow:
+                0 3px 1px rgba(0,0,0,0.04),
+                0 3px 8px rgba(0,0,0,0.12);
+        }
+
+        .group-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #6d6d72;
+            padding: 16px 16px 6px;
+            margin: 0;
+        }
+
+        .list-group {
+            background-color: #ffffff;
+            border-radius: 10px;
+            margin: 0 16px 24px;
+            overflow: hidden;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #c6c6c8;
+            font-size: 17px;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item input[type="number"],
+        .list-item input[type="text"] {
+            border: none;
+            text-align: right;
+            font-size: 17px;
+            color: #8e8e93;
+            background: transparent;
+            outline: none;
+            width: 150px;
+            font-family: inherit;
+        }
+
+        .list-item select {
+            border: none;
+            font-size: 17px;
+            color: #8e8e93;
+            background: transparent;
+            outline: none;
+            direction: rtl;
+            font-family: inherit;
+            width: 200px;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .table-header {
+            background-color: #f2f2f7;
+            font-size: 12px;
+            color: #6d6d72;
+            text-transform: uppercase;
+            border-bottom: 1px solid #c6c6c8;
+            padding: 8px 16px;
+        }
+
+        .col-name {
+            flex: 1.5;
+        }
+
+        .col-usd {
+            flex: 1;
+            text-align: right;
+            color: #8e8e93;
+        }
+
+        .col-gtq {
+            flex: 1;
+            text-align: right;
+            color: #8e8e93;
+        }
+
+        .total-row {
+            font-weight: 600;
+        }
+
+        .total-row .col-usd {
+            color: #34c759;
+        }
+
+        .total-row .col-gtq {
+            color: #007aff;
+        }
+
+        .ios-button {
+            background-color: #007aff;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 17px;
+            font-weight: 600;
+            width: calc(100% - 32px);
+            margin: 0 16px 24px;
+            cursor: pointer;
+        }
+
+        #config-section {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="ios-header">Importadora Goyo</div>
+
+    <div class="segmented-control">
+        <div class="segment active" onclick="switchTab('calc', this)">
+            Calculadora
+        </div>
+
+        <div class="segment" onclick="switchTab('config', this)">
+            Ajustes
+        </div>
+    </div>
+
+    <!-- CALCULATOR UI -->
+    <div id="calc-section">
+
+        <div class="group-title">Oferta y Vehículo</div>
+
+        <div class="list-group">
+
+            <div class="list-item">
+                <span>Precio Oferta ($)</span>
+                <input
+                    type="number"
+                    id="precio"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    oninput="calcular()"
+                >
+            </div>
+
+            <div class="list-item">
+                <span>Tamaño</span>
+                <select id="size" onchange="calcular()"></select>
+            </div>
+
+            <div class="list-item">
+                <span>Extras ($)</span>
+                <input
+                    type="number"
+                    id="custom"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    oninput="calcular()"
+                >
+            </div>
+
+        </div>
+
+        <div class="group-title">Rutas y Logística</div>
+
+        <div class="list-group">
+
+            <div class="list-item">
+                <span>Origen (Grúa)</span>
+                <select id="tow" onchange="alCambiarGrua()"></select>
+            </div>
+
+            <div class="list-item">
+                <span>Puerto Salida</span>
+
+                <select id="port" onchange="calcular()">
+                    <option value="California">California</option>
+                    <option value="Florida">Florida</option>
+                    <option value="Philadelphia">Philadelphia</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="group-title">Desglose Final</div>
+
+        <div class="list-group">
+
+            <div class="list-item table-header">
+                <span class="col-name">Concepto</span>
+                <span class="col-usd">USD ($)</span>
+                <span class="col-gtq">GTQ (Q)</span>
+            </div>
+
+            <div class="list-item">
+                <span class="col-name">Oferta</span>
+                <span class="col-usd" id="u-car">0.00</span>
+                <span class="col-gtq" id="g-car">0.00</span>
+            </div>
+
+            <div class="list-item">
+                <span class="col-name">Copart Fee</span>
+                <span class="col-usd" id="u-fee">0.00</span>
+                <span class="col-gtq" id="g-fee">0.00</span>
+            </div>
+
+            <div class="list-item">
+                <span class="col-name">Grúa</span>
+                <span class="col-usd" id="u-tow">0.00</span>
+                <span class="col-gtq" id="g-tow">0.00</span>
+            </div>
+
+            <div class="list-item">
+                <span class="col-name">Flete Marít.</span>
+                <span class="col-usd" id="u-mar">0.00</span>
+                <span class="col-gtq" id="g-mar">0.00</span>
+            </div>
+
+            <div class="list-item">
+                <span class="col-name">Banco Fee</span>
+                <span class="col-usd" id="u-bank">0.00</span>
+                <span class="col-gtq" id="g-bank">0.00</span>
+            </div>
+
+            <div class="list-item">
+                <span class="col-name">Extras</span>
+                <span class="col-usd" id="u-custom">0.00</span>
+                <span class="col-gtq" id="g-custom">0.00</span>
+            </div>
+
+            <div class="list-item total-row">
+                <span class="col-name">TOTAL</span>
+                <span class="col-usd" id="u-total">0.00</span>
+                <span class="col-gtq" id="g-total">0.00</span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- SETTINGS UI -->
+    <div id="config-section">
+
+        <div class="group-title">Variables Financieras</div>
+
+        <div class="list-group">
+
+            <div class="list-item">
+                <span>Cambio a Quetzal (Q)</span>
+                <input
+                    type="number"
+                    id="cfg-tasa"
+                    step="0.01"
+                >
+            </div>
+
+            <div class="list-item">
+                <span>Fee Bancario ($)</span>
+                <input
+                    type="number"
+                    id="cfg-banco"
+                    step="0.01"
+                >
+            </div>
+
+        </div>
+
+        <div class="group-title">Editor de Grúas y Orígenes</div>
+
+        <div
+            class="list-group"
+            id="origins-list"
+            style="max-height: 400px; overflow-y: auto;"
+        >
+            <!-- Generado por JS -->
+        </div>
+
+        <button
+            class="ios-button"
+            style="background-color: #34c759;"
+            onclick="agregarOrigen()"
+        >
+            + Añadir Nuevo Origen
+        </button>
+
+        <button
+            class="ios-button"
+            onclick="guardarConfig()"
+        >
+            Guardar Cambios
+        </button>
+
+    </div>
+
+
+<script>
+
+    /*
+     * ============================================================
+     * DEFAULT DATA
+     * ============================================================
+     */
+
+    const defaultData = {
+
+        /*
+         * COPART SECURED PAYMENT METHODS
+         *
+         * Every bracket has:
+         *   min = minimum bid price
+         *   max = maximum bid price
+         *
+         * $15,000+ uses a percentage instead of a fixed fee.
+         *
+         * max: null means no upper limit.
+         */
+
+        copartFees: [
+
+            { min: 0.00,     max: 49.99,     fee: 1.00 },
+            { min: 50.00,    max: 99.99,     fee: 1.00 },
+            { min: 100.00,   max: 199.99,    fee: 25.00 },
+            { min: 200.00,   max: 299.99,    fee: 60.00 },
+            { min: 300.00,   max: 349.99,    fee: 85.00 },
+            { min: 350.00,   max: 399.99,    fee: 100.00 },
+            { min: 400.00,   max: 449.99,    fee: 125.00 },
+            { min: 450.00,   max: 499.99,    fee: 135.00 },
+            { min: 500.00,   max: 549.99,    fee: 145.00 },
+            { min: 550.00,   max: 599.99,    fee: 155.00 },
+            { min: 600.00,   max: 699.99,    fee: 170.00 },
+            { min: 700.00,   max: 799.99,    fee: 195.00 },
+            { min: 800.00,   max: 899.99,    fee: 215.00 },
+            { min: 900.00,   max: 999.99,    fee: 230.00 },
+            { min: 1000.00,  max: 1199.99,   fee: 250.00 },
+            { min: 1200.00,  max: 1299.99,   fee: 270.00 },
+            { min: 1300.00,  max: 1399.99,   fee: 285.00 },
+            { min: 1400.00,  max: 1499.99,   fee: 300.00 },
+            { min: 1500.00,  max: 1599.99,   fee: 315.00 },
+            { min: 1600.00,  max: 1699.99,   fee: 330.00 },
+            { min: 1700.00,  max: 1799.99,   fee: 350.00 },
+            { min: 1800.00,  max: 1999.99,   fee: 370.00 },
+            { min: 2000.00,  max: 2399.99,   fee: 390.00 },
+            { min: 2400.00,  max: 2499.99,   fee: 425.00 },
+            { min: 2500.00,  max: 2999.99,   fee: 460.00 },
+            { min: 3000.00,  max: 3499.99,   fee: 505.00 },
+            { min: 3500.00,  max: 3999.99,   fee: 555.00 },
+            { min: 4000.00,  max: 4499.99,   fee: 600.00 },
+            { min: 4500.00,  max: 4999.99,   fee: 625.00 },
+            { min: 5000.00,  max: 5499.99,   fee: 650.00 },
+            { min: 5500.00,  max: 5999.99,   fee: 675.00 },
+            { min: 6000.00,  max: 6499.99,   fee: 700.00 },
+            { min: 6500.00,  max: 6999.99,   fee: 720.00 },
+            { min: 7000.00,  max: 7499.99,   fee: 755.00 },
+            { min: 7500.00,  max: 7999.99,   fee: 775.00 },
+            { min: 8000.00,  max: 8499.99,   fee: 800.00 },
+            { min: 8500.00,  max: 8999.99,   fee: 820.00 },
+            { min: 9000.00,  max: 9999.99,   fee: 820.00 },
+            { min: 10000.00, max: 10499.99,  fee: 850.00 },
+            { min: 10500.00, max: 10999.99,  fee: 850.00 },
+            { min: 11000.00, max: 11499.99,  fee: 850.00 },
+            { min: 11500.00, max: 11999.99,  fee: 860.00 },
+            { min: 12000.00, max: 12499.99,  fee: 875.00 },
+            { min: 12500.00, max: 14999.99,  fee: 890.00 },
+
+            // $15,000+
+            { min: 15000.00, max: null, fee: 0.06, percentage: true }
+
+        ],
+
+        // Kept for backwards compatibility with old saved data.
+        feePorcentaje: 0.06,
+        limitePorcentaje: 15000,
+
+        bancoFee: 50,
+        tipoCambioGTQ: 7.62,
+
+        vehiculos: [
+            "Pequeño",
+            "Mediano",
+            "Grande",
+            "Extra Grande",
+            "Motos"
+        ],
+
+        fletes: {
+
+            "California": {
+                "Pequeño": 1270,
+                "Mediano": 1420,
+                "Grande": 1470,
+                "Extra Grande": 1670,
+                "Motos": 325
+            },
+
+            "Florida": {
+                "Pequeño": 1170,
+                "Mediano": 1240,
+                "Grande": 1390,
+                "Extra Grande": 1570,
+                "Motos": 325
+            },
+
+            "Philadelphia": {
+                "Pequeño": 970,
+                "Mediano": 1025,
+                "Grande": 1270,
+                "Extra Grande": 1457,
+                "Motos": 325
+            }
+
+        },
+
+        gruas: [
+
+            // ====================================================
+            // FLORIDA PORT
+            // ====================================================
+
+            { abr: "AL", nombre: "Birmingham", precio: 475, puerto: "Florida" },
+            { abr: "AL", nombre: "Cusseta", precio: 545, puerto: "Florida" },
+            { abr: "AL", nombre: "Dothan", precio: 475, puerto: "Florida" },
+            { abr: "AL", nombre: "Mobile", precio: 450, puerto: "Florida" },
+            { abr: "AL", nombre: "Mobile South", precio: 495, puerto: "Florida" },
+            { abr: "AL", nombre: "Montgomery", precio: 450, puerto: "Florida" },
+            { abr: "AL", nombre: "Tanner", precio: 495, puerto: "Florida" },
+
+            { abr: "AR", nombre: "Fayetteville", precio: 725, puerto: "Florida" },
+            { abr: "AR", nombre: "Little Rock", precio: 750, puerto: "Florida" },
+
+            { abr: "FL", nombre: "Fort. Pierce", precio: 150, puerto: "Florida" },
+            { abr: "FL", nombre: "Jacksonville North", precio: 250, puerto: "Florida" },
+            { abr: "FL", nombre: "Miami Central", precio: 100, puerto: "Florida" },
+            { abr: "FL", nombre: "Miami North", precio: 100, puerto: "Florida" },
+            { abr: "FL", nombre: "Miami South", precio: 100, puerto: "Florida" },
+            { abr: "FL", nombre: "Ocala", precio: 250, puerto: "Florida" },
+            { abr: "FL", nombre: "Orlando", precio: 185, puerto: "Florida" },
+            { abr: "FL", nombre: "Orlando North", precio: 185, puerto: "Florida" },
+            { abr: "FL", nombre: "Orlando South", precio: 185, puerto: "Florida" },
+            { abr: "FL", nombre: "Punta Gorda", precio: 220, puerto: "Florida" },
+            { abr: "FL", nombre: "Punta Gorda South", precio: 225, puerto: "Florida" },
+            { abr: "FL", nombre: "Tallahassee", precio: 320, puerto: "Florida" },
+            { abr: "FL", nombre: "Tampa North", precio: 250, puerto: "Florida" },
+            { abr: "FL", nombre: "Tampa South", precio: 205, puerto: "Florida" },
+            { abr: "FL", nombre: "West Palm Beach", precio: 120, puerto: "Florida" },
+
+            { abr: "GA", nombre: "Atlanta East/North/South", precio: 345, puerto: "Florida" },
+            { abr: "GA", nombre: "Atlanta West", precio: 345, puerto: "Florida" },
+            { abr: "GA", nombre: "Augusta", precio: 395, puerto: "Florida" },
+            { abr: "GA", nombre: "Cartersville", precio: 345, puerto: "Florida" },
+            { abr: "GA", nombre: "Fairburn", precio: 345, puerto: "Florida" },
+            { abr: "GA", nombre: "Macon", precio: 345, puerto: "Florida" },
+            { abr: "GA", nombre: "Savannah", precio: 345, puerto: "Florida" },
+            { abr: "GA", nombre: "Tifton", precio: 345, puerto: "Florida" },
+
+            { abr: "IL", nombre: "Chicago North", precio: 695, puerto: "Florida" },
+            { abr: "IL", nombre: "Chicago South", precio: 695, puerto: "Florida" },
+            { abr: "IL", nombre: "Peoria", precio: 825, puerto: "Florida" },
+            { abr: "IL", nombre: "Southern Illinois", precio: 675, puerto: "Florida" },
+            { abr: "IL", nombre: "Springfield", precio: 725, puerto: "Florida" },
+            { abr: "IL", nombre: "St. Louis", precio: 675, puerto: "Florida" },
+            { abr: "IL", nombre: "Wheeling", precio: 675, puerto: "Florida" },
+
+            { abr: "IN", nombre: "Cicero", precio: 700, puerto: "Florida" },
+            { abr: "IN", nombre: "Dyer", precio: 700, puerto: "Florida" },
+            { abr: "IN", nombre: "Fort Wayne", precio: 900, puerto: "Florida" },
+            { abr: "IN", nombre: "Indianapolis", precio: 645, puerto: "Florida" },
+
+            { abr: "IA", nombre: "Davenport", precio: 950, puerto: "Florida" },
+            { abr: "IA", nombre: "Des Moines", precio: 950, puerto: "Florida" },
+
+            { abr: "KS", nombre: "Kansas City", precio: 675, puerto: "Florida" },
+            { abr: "KS", nombre: "Wichita", precio: 800, puerto: "Florida" },
+
+            { abr: "KY", nombre: "Earlington", precio: 800, puerto: "Florida" },
+            { abr: "KY", nombre: "Lexington East/West", precio: 650, puerto: "Florida" },
+            { abr: "KY", nombre: "Louisville", precio: 650, puerto: "Florida" },
+            { abr: "KY", nombre: "Walton", precio: 650, puerto: "Florida" },
+
+            { abr: "LA", nombre: "Baton Rogue", precio: 495, puerto: "Florida" },
+            { abr: "LA", nombre: "New Orleans", precio: 495, puerto: "Florida" },
+            { abr: "LA", nombre: "Shreveport", precio: 675, puerto: "Florida" },
+
+            { abr: "MN", nombre: "Minneapolis", precio: 795, puerto: "Florida" },
+            { abr: "MN", nombre: "Minneapolis North", precio: 795, puerto: "Florida" },
+            { abr: "MN", nombre: "St. Cloud", precio: 850, puerto: "Florida" },
+
+            { abr: "MS", nombre: "Jackson", precio: 475, puerto: "Florida" },
+
+            { abr: "MO", nombre: "Columbia", precio: 750, puerto: "Florida" },
+            { abr: "MO", nombre: "St. Louis", precio: 675, puerto: "Florida" },
+
+            { abr: "NC", nombre: "China Grove", precio: 400, puerto: "Florida" },
+            { abr: "NC", nombre: "Concord", precio: 400, puerto: "Florida" },
+            { abr: "NC", nombre: "Gastonia", precio: 425, puerto: "Florida" },
+            { abr: "NC", nombre: "LaGrange", precio: 495, puerto: "Florida" },
+            { abr: "NC", nombre: "Lumberton", precio: 400, puerto: "Florida" },
+            { abr: "NC", nombre: "Mebane", precio: 400, puerto: "Florida" },
+            { abr: "NC", nombre: "Mocksville", precio: 430, puerto: "Florida" },
+            { abr: "NC", nombre: "Raleigh", precio: 395, puerto: "Florida" },
+            { abr: "NC", nombre: "Raleigh North", precio: 395, puerto: "Florida" },
+
+            { abr: "OK", nombre: "Oklahoma City", precio: 750, puerto: "Florida" },
+            { abr: "OK", nombre: "Tulsa", precio: 750, puerto: "Florida" },
+
+            { abr: "SC", nombre: "North Charleston", precio: 335, puerto: "Florida" },
+            { abr: "SC", nombre: "Spartanburg", precio: 375, puerto: "Florida" },
+
+            { abr: "TN", nombre: "Knoxville", precio: 480, puerto: "Florida" },
+            { abr: "TN", nombre: "Memphis", precio: 480, puerto: "Florida" },
+            { abr: "TN", nombre: "Nashville", precio: 480, puerto: "Florida" },
+
+            { abr: "TX", nombre: "Austin", precio: 500, puerto: "Florida" },
+            { abr: "TX", nombre: "Dallas South", precio: 500, puerto: "Florida" },
+            { abr: "TX", nombre: "Ft Worth", precio: 600, puerto: "Florida" },
+            { abr: "TX", nombre: "Houston", precio: 565, puerto: "Florida" },
+            { abr: "TX", nombre: "Houston East", precio: 565, puerto: "Florida" },
+            { abr: "TX", nombre: "San Antonio", precio: 500, puerto: "Florida" },
+
+
+            // ====================================================
+            // CALIFORNIA PORT
+            // ====================================================
+
+            { abr: "AZ", nombre: "Phoenix", precio: 275, puerto: "California" },
+            { abr: "AZ", nombre: "Phoenix North", precio: 325, puerto: "California" },
+            { abr: "AZ", nombre: "Tucson", precio: 400, puerto: "California" },
+
+            { abr: "CA", nombre: "Adelanto", precio: 300, puerto: "California" },
+            { abr: "CA", nombre: "Antelope", precio: 350, puerto: "California" },
+            { abr: "CA", nombre: "Bakersfield", precio: 250, puerto: "California" },
+            { abr: "CA", nombre: "Fresno", precio: 300, puerto: "California" },
+            { abr: "CA", nombre: "Hayward", precio: 385, puerto: "California" },
+            { abr: "CA", nombre: "Long Beach", precio: 150, puerto: "California" },
+            { abr: "CA", nombre: "Los Angeles", precio: 150, puerto: "California" },
+            { abr: "CA", nombre: "Martinez", precio: 375, puerto: "California" },
+            { abr: "CA", nombre: "Mentone", precio: 325, puerto: "California" },
+            { abr: "CA", nombre: "Napa", precio: 450, puerto: "California" },
+            { abr: "CA", nombre: "R.Cucamonga", precio: 200, puerto: "California" },
+            { abr: "CA", nombre: "Redding", precio: 550, puerto: "California" },
+            { abr: "CA", nombre: "Sacramento", precio: 325, puerto: "California" },
+            { abr: "CA", nombre: "San Bernardino", precio: 190, puerto: "California" },
+            { abr: "CA", nombre: "San Diego", precio: 235, puerto: "California" },
+            { abr: "CA", nombre: "San Jose", precio: 385, puerto: "California" },
+            { abr: "CA", nombre: "So Sacramento", precio: 325, puerto: "California" },
+            { abr: "CA", nombre: "Sun Valley", precio: 200, puerto: "California" },
+            { abr: "CA", nombre: "Vallejo", precio: 375, puerto: "California" },
+            { abr: "CA", nombre: "Van Nuys", precio: 195, puerto: "California" },
+
+            { abr: "CO", nombre: "Colorado Springs", precio: 695, puerto: "California" },
+            { abr: "CO", nombre: "Denver", precio: 695, puerto: "California" },
+            { abr: "CO", nombre: "Denver Central", precio: 695, puerto: "California" },
+            { abr: "CO", nombre: "Denver East", precio: 695, puerto: "California" },
+            { abr: "CO", nombre: "Denver South", precio: 695, puerto: "California" },
+
+            { abr: "ID", nombre: "Boise", precio: 775, puerto: "California" },
+
+            { abr: "NV", nombre: "Las Vegas", precio: 325, puerto: "California" },
+            { abr: "NV", nombre: "Reno", precio: 525, puerto: "California" },
+
+            { abr: "NM", nombre: "Albuquerque", precio: 795, puerto: "California" },
+
+            { abr: "OR", nombre: "Eugene", precio: 595, puerto: "California" },
+            { abr: "OR", nombre: "Portland North", precio: 595, puerto: "California" },
+            { abr: "OR", nombre: "Portland South", precio: 595, puerto: "California" },
+
+            { abr: "UT", nombre: "Ogden", precio: 435, puerto: "California" },
+            { abr: "UT", nombre: "Salt Lake City", precio: 435, puerto: "California" },
+
+            { abr: "WA", nombre: "Graham", precio: 695, puerto: "California" },
+            { abr: "WA", nombre: "North Seattle", precio: 750, puerto: "California" },
+            { abr: "WA", nombre: "Pasco", precio: 850, puerto: "California" },
+            { abr: "WA", nombre: "Spokane", precio: 850, puerto: "California" },
+
+
+            // ====================================================
+            // PHILADELPHIA PORT
+            // ====================================================
+
+            { abr: "CT", nombre: "Hartford", precio: 300, puerto: "Philadelphia" },
+            { abr: "CT", nombre: "Hartford Springfield", precio: 325, puerto: "Philadelphia" },
+
+            { abr: "DE", nombre: "Seaford", precio: 200, puerto: "Philadelphia" },
+
+            { abr: "ME", nombre: "Lyman", precio: 560, puerto: "Philadelphia" },
+            { abr: "ME", nombre: "Windham", precio: 600, puerto: "Philadelphia" },
+
+            { abr: "MD", nombre: "Baltimore", precio: 185, puerto: "Philadelphia" },
+            { abr: "MD", nombre: "Baltimore East", precio: 240, puerto: "Philadelphia" },
+            { abr: "MD", nombre: "Washington DC", precio: 195, puerto: "Philadelphia" },
+
+            { abr: "MA", nombre: "Boston North", precio: 445, puerto: "Philadelphia" },
+            { abr: "MA", nombre: "Boston South", precio: 435, puerto: "Philadelphia" },
+            { abr: "MA", nombre: "Freetown", precio: 425, puerto: "Philadelphia" },
+            { abr: "MA", nombre: "West Warren", precio: 435, puerto: "Philadelphia" },
+
+            { abr: "MI", nombre: "Detroit", precio: 775, puerto: "Philadelphia" },
+            { abr: "MI", nombre: "Flint", precio: 775, puerto: "Philadelphia" },
+            { abr: "MI", nombre: "Lansing", precio: 775, puerto: "Philadelphia" },
+            { abr: "MI", nombre: "Wayland", precio: 775, puerto: "Philadelphia" },
+
+            { abr: "NH", nombre: "Candia", precio: 500, puerto: "Philadelphia" },
+
+            { abr: "NJ", nombre: "Glassboro East/West", precio: 145, puerto: "Philadelphia" },
+            { abr: "NJ", nombre: "Somerville", precio: 175, puerto: "Philadelphia" },
+            { abr: "NJ", nombre: "Trenton", precio: 170, puerto: "Philadelphia" },
+
+            { abr: "NY", nombre: "Albany", precio: 300, puerto: "Philadelphia" },
+            { abr: "NY", nombre: "Buffalo", precio: 575, puerto: "Philadelphia" },
+            { abr: "NY", nombre: "Long Island", precio: 280, puerto: "Philadelphia" },
+            { abr: "NY", nombre: "Newburgh", precio: 255, puerto: "Philadelphia" },
+            { abr: "NY", nombre: "Rochester", precio: 415, puerto: "Philadelphia" },
+            { abr: "NY", nombre: "Syracuse", precio: 370, puerto: "Philadelphia" },
+
+            { abr: "OH", nombre: "Cleveland East/West", precio: 575, puerto: "Philadelphia" },
+            { abr: "OH", nombre: "Columbus", precio: 575, puerto: "Philadelphia" },
+            { abr: "OH", nombre: "Dayton", precio: 575, puerto: "Philadelphia" },
+
+            { abr: "PA", nombre: "Altoona", precio: 330, puerto: "Philadelphia" },
+            { abr: "PA", nombre: "Chambersburg", precio: 220, puerto: "Philadelphia" },
+            { abr: "PA", nombre: "Harrisburg", precio: 170, puerto: "Philadelphia" },
+            { abr: "PA", nombre: "Philadelphia", precio: 145, puerto: "Philadelphia" },
+            { abr: "PA", nombre: "Philadelphia East", precio: 145, puerto: "Philadelphia" },
+            { abr: "PA", nombre: "Pittsburgh East/South/West", precio: 375, puerto: "Philadelphia" },
+            { abr: "PA", nombre: "Pittsburgh-North", precio: 375, puerto: "Philadelphia" },
+            { abr: "PA", nombre: "Scranton", precio: 190, puerto: "Philadelphia" },
+            { abr: "PA", nombre: "York Haven", precio: 175, puerto: "Philadelphia" },
+
+            { abr: "RI", nombre: "Exeter", precio: 410, puerto: "Philadelphia" },
+
+            { abr: "VT", nombre: "Rutland", precio: 700, puerto: "Philadelphia" },
+
+            { abr: "VA", nombre: "Danville", precio: 480, puerto: "Philadelphia" },
+            { abr: "VA", nombre: "Fredericksburg", precio: 310, puerto: "Philadelphia" },
+            { abr: "VA", nombre: "Hampton", precio: 395, puerto: "Philadelphia" },
+            { abr: "VA", nombre: "Richmond", precio: 295, puerto: "Philadelphia" },
+            { abr: "VA", nombre: "Richmond East", precio: 350, puerto: "Philadelphia" },
+
+            { abr: "WV", nombre: "Charleston", precio: 550, puerto: "Philadelphia" },
+
+            { abr: "WI", nombre: "Madison South", precio: 825, puerto: "Philadelphia" },
+            { abr: "WI", nombre: "Milwaukee South", precio: 825, puerto: "Philadelphia" }
+
+        ]
+
+    };
+
+
+    /*
+     * ============================================================
+     * APP STATE
+     * ============================================================
+     */
+
+    let appData = {};
+
+
+    /*
+     * ============================================================
+     * INITIALIZATION
+     * ============================================================
+     */
+
+    function init() {
+
+        const stored = localStorage.getItem("iosCalcData");
+
+        if (stored) {
+
+            try {
+
+                appData = JSON.parse(stored);
+
+                /*
+                 * IMPORTANT:
+                 * Replace the old Copart fee database every time
+                 * the app starts.
+                 *
+                 * This fixes existing installations that already
+                 * saved the previous broken database to localStorage.
+                 */
+
+                appData.copartFees = JSON.parse(
+                    JSON.stringify(defaultData.copartFees)
+                );
+
+                /*
+                 * Keep old compatibility variables.
+                 */
+
+                appData.feePorcentaje = defaultData.feePorcentaje;
+                appData.limitePorcentaje = defaultData.limitePorcentaje;
+
+                /*
+                 * If an old version somehow lacks these properties,
+                 * restore them from the defaults.
+                 */
+
+                if (!appData.vehiculos) {
+                    appData.vehiculos = JSON.parse(
+                        JSON.stringify(defaultData.vehiculos)
+                    );
+                }
+
+                if (!appData.fletes) {
+                    appData.fletes = JSON.parse(
+                        JSON.stringify(defaultData.fletes)
+                    );
+                }
+
+                if (!appData.gruas) {
+                    appData.gruas = JSON.parse(
+                        JSON.stringify(defaultData.gruas)
+                    );
+                }
+
+                if (typeof appData.bancoFee !== "number") {
+                    appData.bancoFee = defaultData.bancoFee;
+                }
+
+                if (typeof appData.tipoCambioGTQ !== "number") {
+                    appData.tipoCambioGTQ = defaultData.tipoCambioGTQ;
+                }
+
+                localStorage.setItem(
+                    "iosCalcData",
+                    JSON.stringify(appData)
+                );
+
+            } catch (e) {
+
+                appData = JSON.parse(
+                    JSON.stringify(defaultData)
+                );
+
+                localStorage.setItem(
+                    "iosCalcData",
+                    JSON.stringify(appData)
+                );
+            }
+
+        } else {
+
+            appData = JSON.parse(
+                JSON.stringify(defaultData)
+            );
+
+            localStorage.setItem(
+                "iosCalcData",
+                JSON.stringify(appData)
+            );
+        }
+
+        poblarSelects();
+        renderConfig();
+        alCambiarGrua();
+    }
+
+
+    /*
+     * ============================================================
+     * POPULATE SELECTS
+     * ============================================================
+     */
+
+    function poblarSelects() {
+
+        document.getElementById("size").innerHTML =
+            appData.vehiculos
+                .map(v => `<option value="${v}">${v}</option>`)
+                .join("");
+
+        let gruasHTML = "";
+        let currentAbr = "";
+
+        const sorted = [...appData.gruas]
+            .map((g, i) => ({
+                ...g,
+                idx: i
+            }))
+            .sort(
+                (a, b) =>
+                    a.abr.localeCompare(b.abr) ||
+                    a.nombre.localeCompare(b.nombre)
+            );
+
+        sorted.forEach(g => {
+
+            if (g.abr !== currentAbr) {
+
+                if (currentAbr !== "") {
+                    gruasHTML += "</optgroup>";
+                }
+
+                gruasHTML += `<optgroup label="${g.abr}">`;
+
+                currentAbr = g.abr;
+            }
+
+            gruasHTML += `
+                <option value="${g.idx}">
+                    [${g.abr}] ${g.nombre} - $${g.precio}
+                </option>
+            `;
+        });
+
+        if (currentAbr !== "") {
+            gruasHTML += "</optgroup>";
+        }
+
+        document.getElementById("tow").innerHTML = gruasHTML;
+    }
+
+
+    /*
+     * ============================================================
+     * TOW / ORIGIN CHANGE
+     * ============================================================
+     */
+
+    function alCambiarGrua() {
+
+        const originalIndex =
+            document.getElementById("tow").value;
+
+        const grua =
+            appData.gruas[originalIndex];
+
+        if (grua && grua.puerto) {
+
+            document.getElementById("port").value =
+                grua.puerto;
+        }
+
+        calcular();
+    }
+
+
+    /*
+     * ============================================================
+     * CALCULATOR
+     * ============================================================
+     */
+
+    function calcular() {
+
+        const precio =
+            parseFloat(
+                document.getElementById("precio").value
+            ) || 0;
+
+        const size =
+            document.getElementById("size").value;
+
+        const port =
+            document.getElementById("port").value;
+
+        const towIndex =
+            document.getElementById("tow").value;
+
+        const towPrice =
+            appData.gruas[towIndex]
+                ? parseFloat(appData.gruas[towIndex].precio)
+                : 0;
+
+        const custom =
+            parseFloat(
+                document.getElementById("custom").value
+            ) || 0;
+
+        const tc =
+            parseFloat(appData.tipoCambioGTQ) || 0;
+
+
+        /*
+         * ========================================================
+         * COPART FEE
+         * ========================================================
+         *
+         * The old code only checked:
+         *
+         *     precio <= t.max
+         *
+         * which caused $1,200 to match the old $1,499.99
+         * bracket and incorrectly return $300.
+         *
+         * Now both minimum and maximum are checked.
+         *
+         * For max === null, the bracket is open-ended.
+         */
+
+        let fee = 0;
+
+        const tramo =
+            appData.copartFees.find(t => {
+
+                const meetsMinimum =
+                    precio >= t.min;
+
+                const meetsMaximum =
+                    t.max === null ||
+                    precio <= t.max;
+
+                return meetsMinimum && meetsMaximum;
+            });
+
+
+        if (tramo) {
+
+            if (tramo.percentage) {
+
+                fee =
+                    precio * tramo.fee;
+
+            } else {
+
+                fee =
+                    tramo.fee;
+            }
+        }
+
+
+        /*
+         * ========================================================
+         * OTHER COSTS
+         * ========================================================
+         */
+
+        const flete =
+            appData.fletes[port]?.[size] || 0;
+
+        const banco =
+            parseFloat(appData.bancoFee) || 0;
+
+        const totalUSD =
+            precio +
+            fee +
+            towPrice +
+            flete +
+            banco +
+            custom;
+
+
+        /*
+         * ========================================================
+         * DISPLAY HELPERS
+         * ========================================================
+         */
+
+        const updateRow = (id, usdVal) => {
+
+            const safeUSD =
+                Number.isFinite(usdVal)
+                    ? usdVal
+                    : 0;
+
+            const usdElement =
+                document.getElementById(`u-${id}`);
+
+            const gtqElement =
+                document.getElementById(`g-${id}`);
+
+            usdElement.innerText =
+                safeUSD.toLocaleString(
+                    "en-US",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+
+            gtqElement.innerText =
+                (safeUSD * tc).toLocaleString(
+                    "es-GT",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+        };
+
+
+        /*
+         * ========================================================
+         * UPDATE TABLE
+         * ========================================================
+         */
+
+        updateRow("car", precio);
+        updateRow("fee", fee);
+        updateRow("tow", towPrice);
+        updateRow("mar", flete);
+        updateRow("bank", banco);
+        updateRow("custom", custom);
+        updateRow("total", totalUSD);
+    }
+
+
+    /*
+     * ============================================================
+     * SETTINGS RENDER
+     * ============================================================
+     */
+
+    function renderConfig() {
+
+        document.getElementById("cfg-tasa").value =
+            appData.tipoCambioGTQ;
+
+        document.getElementById("cfg-banco").value =
+            appData.bancoFee;
+
+
+        let html = "";
+
+
+        appData.gruas.forEach((g, i) => {
+
+            html += `
+                <div
+                    class="list-item"
+                    style="padding: 10px 16px;"
+                >
+
+                    <input
+                        type="text"
+                        class="cfg-abr"
+                        value="${g.abr}"
+                        style="
+                            width: 35px;
+                            text-align: left;
+                            color: #000;
+                            font-weight: 600;
+                        "
+                    >
+
+                    <input
+                        type="text"
+                        class="cfg-nom"
+                        value="${g.nombre}"
+                        style="
+                            flex: 1;
+                            text-align: left;
+                            color: #000;
+                            margin-left: 5px;
+                        "
+                    >
+
+                    <span
+                        style="
+                            color:#8e8e93;
+                            font-size:15px;
+                            margin:0 5px;
+                        "
+                    >
+                        $
+                    </span>
+
+                    <input
+                        type="number"
+                        class="cfg-precio"
+                        value="${g.precio}"
+                        style="
+                            width: 55px;
+                            text-align: left;
+                            color: #000;
+                        "
+                    >
+
+                    <select
+                        class="cfg-pto"
+                        style="
+                            width: 75px;
+                            font-size: 14px;
+                        "
+                    >
+
+                        <option
+                            value="California"
+                            ${g.puerto === "California" ? "selected" : ""}
+                        >
+                            CA
+                        </option>
+
+                        <option
+                            value="Florida"
+                            ${g.puerto === "Florida" ? "selected" : ""}
+                        >
+                            FL
+                        </option>
+
+                        <option
+                            value="Philadelphia"
+                            ${g.puerto === "Philadelphia" ? "selected" : ""}
+                        >
+                            PH
+                        </option>
+
+                    </select>
+
+                    <span
+                        onclick="eliminarOrigen(${i})"
+                        style="
+                            color: #ff3b30;
+                            font-size: 22px;
+                            cursor: pointer;
+                            margin-left: 10px;
+                        "
+                    >
+                        ⊖
+                    </span>
+
+                </div>
+            `;
+        });
+
+
+        document.getElementById("origins-list").innerHTML =
+            html;
+    }
+
+
+    /*
+     * ============================================================
+     * ADD ORIGIN
+     * ============================================================
+     */
+
+    function agregarOrigen() {
+
+        appData.gruas.push({
+            abr: "N/A",
+            nombre: "Nuevo",
+            precio: 100,
+            puerto: "Florida"
+        });
+
+        renderConfig();
+
+        document
+            .getElementById("origins-list")
+            .scrollTo(0, 9999);
+    }
+
+
+    /*
+     * ============================================================
+     * DELETE ORIGIN
+     * ============================================================
+     */
+
+    function eliminarOrigen(index) {
+
+        if (confirm("¿Eliminar este origen?")) {
+
+            appData.gruas.splice(index, 1);
+
+            renderConfig();
+        }
+    }
+
+
+    /*
+     * ============================================================
+     * SAVE SETTINGS
+     * ============================================================
+     */
+
+    function guardarConfig() {
+
+        appData.tipoCambioGTQ =
+            parseFloat(
+                document.getElementById("cfg-tasa").value
+            ) || 7.62;
+
+        appData.bancoFee =
+            parseFloat(
+                document.getElementById("cfg-banco").value
+            ) || 50;
+
+
+        const abrs =
+            document.querySelectorAll(".cfg-abr");
+
+        const precios =
+            document.querySelectorAll(".cfg-precio");
+
+        const noms =
+            document.querySelectorAll(".cfg-nom");
+
+        const ptos =
+            document.querySelectorAll(".cfg-pto");
+
+
+        appData.gruas = [];
+
+
+        for (
+            let i = 0;
+            i < abrs.length;
+            i++
+        ) {
+
+            appData.gruas.push({
+
+                abr:
+                    abrs[i].value,
+
+                precio:
+                    parseFloat(precios[i].value) || 0,
+
+                nombre:
+                    noms[i].value,
+
+                puerto:
+                    ptos[i].value
+            });
+        }
+
+
+        /*
+         * Keep the corrected Copart database even when
+         * settings are saved.
+         */
+
+        appData.copartFees =
+            JSON.parse(
+                JSON.stringify(defaultData.copartFees)
+            );
+
+
+        localStorage.setItem(
+            "iosCalcData",
+            JSON.stringify(appData)
+        );
+
+
+        poblarSelects();
+
+        alCambiarGrua();
+
+        switchTab("calc");
+
+        alert("Ajustes Guardados con Éxito");
+    }
+
+
+    /*
+     * ============================================================
+     * TAB SWITCHING
+     * ============================================================
+     */
+
+    function switchTab(tab, clickedElement) {
+
+        document.getElementById("calc-section").style.display =
+            tab === "calc"
+                ? "block"
+                : "none";
+
+        document.getElementById("config-section").style.display =
+            tab === "config"
+                ? "block"
+                : "none";
+
+
+        document
+            .querySelectorAll(".segment")
+            .forEach(el => {
+                el.classList.remove("active");
+            });
+
+
+        if (clickedElement) {
+            clickedElement.classList.add("active");
+        }
+    }
+
+
+    /*
+     * ============================================================
+     * START APP
+     * ============================================================
+     */
+
+    init();
+
+</script>
+
+</body>
+</html>
+```
