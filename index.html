@@ -410,6 +410,8 @@
             </div>
             <div class="list-item"><span class="col-name">Oferta</span><span class="col-usd" id="u-car">0.00</span><span class="col-gtq" id="g-car">0.00</span></div>
             <div class="list-item"><span class="col-name">Copart Fee</span><span class="col-usd" id="u-fee">0.00</span><span class="col-gtq" id="g-fee">0.00</span></div>
+            <div class="list-item"><span class="col-name">Otras fees</span><span class="col-usd" id="u-otras">0.00</span><span class="col-gtq" id="g-otras">0.00</span></div>
+            <div class="list-item"><span class="col-name">Live bid / Internet Bid</span><span class="col-usd" id="u-livebid">0.00</span><span class="col-gtq" id="g-livebid">0.00</span></div>
             <div class="list-item"><span class="col-name">Grúa</span><span class="col-usd" id="u-tow">0.00</span><span class="col-gtq" id="g-tow">0.00</span></div>
             <div class="list-item"><span class="col-name">Flete Marít.</span><span class="col-usd" id="u-mar">0.00</span><span class="col-gtq" id="g-mar">0.00</span></div>
             <div class="list-item"><span class="col-name">Banco Fee</span><span class="col-usd" id="u-bank">0.00</span><span class="col-gtq" id="g-bank">0.00</span></div>
@@ -420,7 +422,7 @@
         <div class="group-title">Costos en Guatemala</div>
         <div class="list-group">
             <div class="list-item">
-                <span>Tipo de Vehículo</span>
+                <span>Iprima</span>
                 <select id="guatemala-vehiculo" onchange="calcular()">
                     <option value="normal">Vehículo Normal (+20%)</option>
                     <option value="pickup">Pick Up (+5%)</option>
@@ -458,12 +460,12 @@
                 <span class="col-usd">USD ($)</span>
                 <span class="col-gtq">GTQ (Q)</span>
             </div>
-            <div class="list-item"><span class="col-name" id="label-guatemala-vehiculo">Vehículo Normal (+20%)</span><span class="col-usd dash">—</span><span class="col-gtq guatemala-only" id="g-guatemala-vehiculo">0.00</span></div>
-            <div class="list-item"><span class="col-name">Grúa Barrios</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-barrios">0.00</span></div>
+            <div class="list-item"><span class="col-name" id="label-guatemala-vehiculo">Iprima</span><span class="col-usd dash">—</span><span class="col-gtq guatemala-only" id="g-guatemala-vehiculo">0.00</span></div>
+            <div class="list-item"><span class="col-name" id="label-grua-guatemala">Grúa Barrios</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-grua-guatemala">0.00</span></div>
             <div class="list-item"><span class="col-name">Trámite</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-tramite">0.00</span></div>
-            <div class="list-item"><span class="col-name">Grúa Guate</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-guate">0.00</span></div>
             <div class="list-item"><span class="col-name">Pintura</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-pintura">0.00</span></div>
             <div class="list-item"><span class="col-name">Repuestos</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-repuestos">0.00</span></div>
+            <div class="list-item"><span class="col-name">IVA (12%)</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-iva">0.00</span></div>
             <div class="list-item total-row"><span class="col-name">TOTAL GUATEMALA</span><span class="col-usd dash">—</span><span class="col-gtq guatemala-only" id="g-guatemala-total">0.00</span></div>
         </div>
 
@@ -581,6 +583,64 @@
         // Kept for backwards compatibility with old saved data.
         feePorcentaje: 0.06,
         limitePorcentaje: 15000,
+
+        // Otras fees fijas (gate + env + title approx.)
+        otrasFees: 130,
+
+        /*
+         * Live Bid / Internet Bid fees based on campobroker.com/calculadora-subastas/
+         * Standard vs Preferential, Salvage vs Clean Title.
+         */
+        liveBidFees: {
+            standard: {
+                salvage: [
+                    { max: 99.99, val: 0 },
+                    { max: 499.99, val: 50 },
+                    { max: 999.99, val: 65 },
+                    { max: 1499.99, val: 85 },
+                    { max: 1999.99, val: 95 },
+                    { max: 3999.99, val: 110 },
+                    { max: 5999.99, val: 125 },
+                    { max: 7999.99, val: 145 },
+                    { max: null, val: 160 }
+                ],
+                clean: [
+                    { max: 99.99, val: 0 },
+                    { max: 499.99, val: 50 },
+                    { max: 999.99, val: 65 },
+                    { max: 1499.99, val: 85 },
+                    { max: 1999.99, val: 95 },
+                    { max: 3999.99, val: 110 },
+                    { max: 5999.99, val: 125 },
+                    { max: 7999.99, val: 145 },
+                    { max: null, val: 160 }
+                ]
+            },
+            preferential: {
+                salvage: [
+                    { max: 99.99, val: 0 },
+                    { max: 499.99, val: 40 },
+                    { max: 999.99, val: 55 },
+                    { max: 1499.99, val: 75 },
+                    { max: 1999.99, val: 85 },
+                    { max: 3999.99, val: 100 },
+                    { max: 5999.99, val: 115 },
+                    { max: 7999.99, val: 135 },
+                    { max: null, val: 150 }
+                ],
+                clean: [
+                    { max: 99.99, val: 0 },
+                    { max: 499.99, val: 49 },
+                    { max: 999.99, val: 59 },
+                    { max: 1499.99, val: 79 },
+                    { max: 1999.99, val: 89 },
+                    { max: 3999.99, val: 99 },
+                    { max: 5999.99, val: 109 },
+                    { max: 7999.99, val: 139 },
+                    { max: null, val: 149 }
+                ]
+            }
+        },
 
         bancoFee: 50,
         tipoCambioGTQ: 7.80,
@@ -2639,6 +2699,8 @@
 
             // The current live HTML owns the Copart fee table.
             merged.copartFees = clone(defaultData.copartFees);
+            merged.liveBidFees = clone(defaultData.liveBidFees);
+            merged.otrasFees = data.otrasFees ?? merged.otrasFees ?? defaultData.otrasFees;
 
             // The current live HTML also owns the Copart location database.
             // This upgrades older saved versions once, while preserving later edits.
@@ -2728,11 +2790,8 @@
             .filter(g => {
                 if (!q) return false;
 
-                const stateName = STATE_NAMES[g.abr] || '';
-                const searchable = normalizeSearch(
-                    `${g.nombre} ${g.abr} ${stateName} ${g.puerto} ${g.tipo}`
-                );
-
+                // Solo búsqueda por nombre de origen
+                const searchable = normalizeSearch(g.nombre);
                 return searchable.includes(q);
             })
             .sort((a, b) =>
@@ -2846,6 +2905,15 @@
         return tramo.percentage ? precio * tramo.fee : tramo.fee;
     }
 
+    function getLiveBidFee(precio) {
+        // Siempre Salvage + Tarifas Preferenciales (sin excepciones)
+        const table = (appData.liveBidFees?.preferential?.salvage) || [];
+        for (const t of table) {
+            if (t.max === null || precio <= t.max) return t.val;
+        }
+        return 0;
+    }
+
     function money(value) {
         return (Number.isFinite(value) ? value : 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
@@ -2888,6 +2956,8 @@
                 : 0;
 
         const fee = getCopartFee(precio);
+        const liveBid = getLiveBidFee(precio);
+        const otras = parseFloat(appData.otrasFees) || 130;
 
         const flete =
             appData.fletes[port]?.[size] || 0;
@@ -2901,6 +2971,8 @@
         const totalUSD =
             precio +
             fee +
+            otras +
+            liveBid +
             towPrice +
             flete +
             banco +
@@ -2910,7 +2982,7 @@
             totalUSD * tc;
 
         /*
-         * Guatemala vehicle percentage is applied to the
+         * Guatemala vehicle percentage (Iprima) is applied to the
          * auction offer after conversion to GTQ.
          */
         const vehicleRate =
@@ -2921,10 +2993,16 @@
         const vehicleCostGTQ =
             precio * tc * vehicleRate;
 
-        const guatemalaFixedGTQ =
-            (parseFloat(appData.guatemala.gruaBarrios) || 0) +
-            (parseFloat(appData.guatemala.tramite) || 0) +
-            (parseFloat(appData.guatemala.gruaGuate) || 0);
+        /*
+         * Single grúa line: California → Grúa Guate, otherwise Grúa Barrios.
+         */
+        const isCalifornia = (port === 'California');
+        const gruaGuatemalaGTQ = isCalifornia
+            ? (parseFloat(appData.guatemala.gruaGuate) || 0)
+            : (parseFloat(appData.guatemala.gruaBarrios) || 0);
+        const gruaGuatemalaLabel = isCalifornia ? 'Grúa Guate' : 'Grúa Barrios';
+
+        const tramiteGTQ = parseFloat(appData.guatemala.tramite) || 0;
 
         /*
          * Painting and parts are calculation-specific custom
@@ -2934,10 +3012,21 @@
             Math.max(0, pintura) +
             Math.max(0, repuestos);
 
-        const guatemalaTotalGTQ =
+        /*
+         * IVA 12% sobre el precio total de todo lo de USA (baseGTQ),
+         * no sobre la tabla de costos locales de Guatemala.
+         */
+        const ivaGTQ = baseGTQ * 0.12;
+
+        const guatemalaLocalGTQ =
             vehicleCostGTQ +
-            guatemalaFixedGTQ +
+            gruaGuatemalaGTQ +
+            tramiteGTQ +
             guatemalaCustomGTQ;
+
+        const guatemalaTotalGTQ =
+            guatemalaLocalGTQ +
+            ivaGTQ;
 
         const finalTotalGTQ =
             baseGTQ +
@@ -2960,6 +3049,8 @@
 
         updateRow('car', precio);
         updateRow('fee', fee);
+        updateRow('otras', otras);
+        updateRow('livebid', liveBid);
         updateRow('mar', flete);
         updateRow('bank', banco);
         updateRow('custom', custom);
@@ -2984,41 +3075,28 @@
         }
 
 
-        const labelMap = {
-            normal:
-                `Vehículo Normal (+${(appData.guatemala.vehiculo.normal * 100)
-                    .toFixed(1).replace('.0', '')}%)`,
-
-            pickup:
-                `Pick Up (+${(appData.guatemala.vehiculo.pickup * 100)
-                    .toFixed(1).replace('.0', '')}%)`,
-
-            '4x4':
-                `Camioneta 4x4 (+${(appData.guatemala.vehiculo['4x4'] * 100)
-                    .toFixed(1).replace('.0', '')}%)`
-        };
-
-
-        document.getElementById('label-guatemala-vehiculo').innerText =
-            labelMap[selectedVehicle];
+        document.getElementById('label-guatemala-vehiculo').innerText = 'Iprima';
 
         document.getElementById('g-guatemala-vehiculo').innerText =
             moneyGTQ(vehicleCostGTQ);
 
-        document.getElementById('g-barrios').innerText =
-            moneyGTQ(appData.guatemala.gruaBarrios);
+        const labelGruaEl = document.getElementById('label-grua-guatemala');
+        if (labelGruaEl) labelGruaEl.innerText = gruaGuatemalaLabel;
+
+        document.getElementById('g-grua-guatemala').innerText =
+            moneyGTQ(gruaGuatemalaGTQ);
 
         document.getElementById('g-tramite').innerText =
-            moneyGTQ(appData.guatemala.tramite);
-
-        document.getElementById('g-guate').innerText =
-            moneyGTQ(appData.guatemala.gruaGuate);
+            moneyGTQ(tramiteGTQ);
 
         document.getElementById('g-pintura').innerText =
             moneyGTQ(pintura);
 
         document.getElementById('g-repuestos').innerText =
             moneyGTQ(repuestos);
+
+        document.getElementById('g-iva').innerText =
+            moneyGTQ(ivaGTQ);
 
         document.getElementById('g-guatemala-total').innerText =
             moneyGTQ(guatemalaTotalGTQ);
@@ -3269,6 +3347,8 @@
          * location-data version from the live HTML.
          */
         appData.copartFees = clone(defaultData.copartFees);
+        appData.liveBidFees = clone(defaultData.liveBidFees);
+        if (appData.otrasFees == null) appData.otrasFees = defaultData.otrasFees;
         appData.locationsVersion = defaultData.locationsVersion;
 
 
