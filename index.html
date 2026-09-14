@@ -410,11 +410,6 @@
             </div>
             <div class="list-item"><span class="col-name">Oferta</span><span class="col-usd" id="u-car">0.00</span><span class="col-gtq" id="g-car">0.00</span></div>
             <div class="list-item"><span class="col-name">Copart Fee</span><span class="col-usd" id="u-fee">0.00</span><span class="col-gtq" id="g-fee">0.00</span></div>
-            <div class="list-item"><span class="col-name">Otras fees</span><span class="col-usd" id="u-otras">0.00</span><span class="col-gtq" id="g-otras">0.00</span></div>
-            <div class="list-item"><span class="col-name">Live bid / Internet Bid</span><span class="col-usd" id="u-livebid">0.00</span><span class="col-gtq" id="g-livebid">0.00</span></div>
-            <div class="list-item"><span class="col-name">Grúa</span><span class="col-usd" id="u-tow">0.00</span><span class="col-gtq" id="g-tow">0.00</span></div>
-            <div class="list-item"><span class="col-name">Flete Marít.</span><span class="col-usd" id="u-mar">0.00</span><span class="col-gtq" id="g-mar">0.00</span></div>
-            <div class="list-item"><span class="col-name">Banco Fee</span><span class="col-usd" id="u-bank">0.00</span><span class="col-gtq" id="g-bank">0.00</span></div>
             <div class="list-item"><span class="col-name">Extras</span><span class="col-usd" id="u-custom">0.00</span><span class="col-gtq" id="g-custom">0.00</span></div>
             <div class="list-item total-row"><span class="col-name">TOTAL</span><span class="col-usd" id="u-total">0.00</span><span class="col-gtq" id="g-total">0.00</span></div>
         </div>
@@ -462,6 +457,9 @@
             </div>
             <div class="list-item"><span class="col-name" id="label-guatemala-vehiculo">Iprima</span><span class="col-usd dash">—</span><span class="col-gtq guatemala-only" id="g-guatemala-vehiculo">0.00</span></div>
             <div class="list-item"><span class="col-name" id="label-grua-guatemala">Grúa Barrios</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-grua-guatemala">0.00</span></div>
+            <div class="list-item"><span class="col-name">Grúa USA</span><span class="col-usd" id="u-tow">0.00</span><span class="col-gtq" id="g-tow">0.00</span></div>
+            <div class="list-item"><span class="col-name">Flete Marít.</span><span class="col-usd" id="u-mar">0.00</span><span class="col-gtq" id="g-mar">0.00</span></div>
+            <div class="list-item"><span class="col-name">Banco Fee</span><span class="col-usd" id="u-bank">0.00</span><span class="col-gtq" id="g-bank">0.00</span></div>
             <div class="list-item"><span class="col-name">Trámite</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-tramite">0.00</span></div>
             <div class="list-item"><span class="col-name">Pintura</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-pintura">0.00</span></div>
             <div class="list-item"><span class="col-name">Repuestos</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-repuestos">0.00</span></div>
@@ -2955,9 +2953,12 @@
                 ? parseFloat(grua.precio) || 0
                 : 0;
 
-        const fee = getCopartFee(precio);
+        const baseCopartFee = getCopartFee(precio);
         const liveBid = getLiveBidFee(precio);
         const otras = parseFloat(appData.otrasFees) || 130;
+
+        // Copart Fee combina: fee de subasta + Otras fees + Live Bid
+        const fee = baseCopartFee + otras + liveBid;
 
         const flete =
             appData.fletes[port]?.[size] || 0;
@@ -2966,16 +2967,11 @@
             parseFloat(appData.bancoFee) || 0;
 
         /*
-         * US / international side.
+         * US side (Desglose Final): solo Oferta + Copart Fee combinado + Extras.
          */
         const totalUSD =
             precio +
             fee +
-            otras +
-            liveBid +
-            towPrice +
-            flete +
-            banco +
             custom;
 
         const baseGTQ =
@@ -2994,7 +2990,7 @@
             precio * tc * vehicleRate;
 
         /*
-         * Single grúa line: California → Grúa Guate, otherwise Grúa Barrios.
+         * Single grúa local: California → Grúa Guate, otherwise Grúa Barrios.
          */
         const isCalifornia = (port === 'California');
         const gruaGuatemalaGTQ = isCalifornia
@@ -3013,19 +3009,26 @@
             Math.max(0, repuestos);
 
         /*
-         * IVA 12% sobre el precio total de todo lo de USA (baseGTQ),
-         * no sobre la tabla de costos locales de Guatemala.
+         * Items moved to Guatemala section (still USD costs, shown in both columns):
+         * Grúa USA, Flete Marít., Banco Fee.
+         */
+        const towGTQ = towPrice * tc;
+        const fleteGTQ = flete * tc;
+        const bancoGTQ = banco * tc;
+
+        /*
+         * IVA 12% sobre el precio total de todo lo de USA (baseGTQ).
          */
         const ivaGTQ = baseGTQ * 0.12;
 
-        const guatemalaLocalGTQ =
+        const guatemalaTotalGTQ =
             vehicleCostGTQ +
             gruaGuatemalaGTQ +
+            towGTQ +
+            fleteGTQ +
+            bancoGTQ +
             tramiteGTQ +
-            guatemalaCustomGTQ;
-
-        const guatemalaTotalGTQ =
-            guatemalaLocalGTQ +
+            guatemalaCustomGTQ +
             ivaGTQ;
 
         const finalTotalGTQ =
@@ -3049,16 +3052,14 @@
 
         updateRow('car', precio);
         updateRow('fee', fee);
-        updateRow('otras', otras);
-        updateRow('livebid', liveBid);
-        updateRow('mar', flete);
-        updateRow('bank', banco);
         updateRow('custom', custom);
         updateRow('total', totalUSD);
+        updateRow('mar', flete);
+        updateRow('bank', banco);
 
 
         /*
-         * Grúa has a special display for "A cotizar".
+         * Grúa USA has a special display for "A cotizar".
          */
         const towUSDEl =
             document.getElementById('u-tow');
