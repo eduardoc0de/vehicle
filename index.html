@@ -3,48 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Calculadora Importación</title>
-    <meta charset="UTF-8">
-
-    <!-- Make it behave like a standalone app -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-
-    <!-- iOS status bar appearance -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
-    <!-- App name shown on the Home Screen -->
     <meta name="apple-mobile-web-app-title" content="Calculadora Goyo">
-
-    <!-- Prevent automatic phone-number detection -->
     <meta name="format-detection" content="telephone=no">
-
-    <!-- Home Screen icon -->
     <link rel="apple-touch-icon" href="icon.png">
-
-    <!-- Optional startup image -->
-    <!-- <link rel="apple-touch-startup-image" href="startup.png"> -->
+    <link rel="manifest" href="manifest.json">
+    <title>Calculadora Importación</title>
 
     <style>
+        :root {
+            color-scheme: light;
+            --bg: #f2f2f7;
+            --card: #ffffff;
+            --text: #000000;
+            --secondary: #6d6d72;
+            --placeholder: #8e8e93;
+            --separator: #c6c6c8;
+            --control: #e3e3e8;
+            --blue: #007aff;
+            --green: #34c759;
+            --red: #ff3b30;
+        }
+
+        html.dark-mode {
+            color-scheme: dark;
+            --bg: #000000;
+            --card: #1c1c1e;
+            --text: #ffffff;
+            --secondary: #8e8e93;
+            --placeholder: #98989d;
+            --separator: #38383a;
+            --control: #2c2c2e;
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            background-color: #f2f2f7;
-            color: #000000;
+            background-color: var(--bg);
+            color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 0 0 28px;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
 
         .ios-header {
             font-size: 34px;
             font-weight: 700;
-            color: #000;
+            color: var(--text);
             padding: 20px 16px 10px;
             letter-spacing: 0.5px;
         }
 
         .segmented-control {
             display: flex;
-            background-color: #e3e3e8;
+            background-color: var(--control);
             border-radius: 9px;
             padding: 2px;
             margin: 16px;
@@ -56,28 +71,26 @@
             font-size: 13px;
             padding: 6px 0;
             border-radius: 7px;
-            color: #000;
+            color: var(--text);
             cursor: pointer;
         }
 
         .segment.active {
-            background-color: #ffffff;
+            background-color: var(--card);
             font-weight: 600;
-            box-shadow:
-                0 3px 1px rgba(0,0,0,0.04),
-                0 3px 8px rgba(0,0,0,0.12);
+            box-shadow: 0 3px 1px rgba(0,0,0,0.04), 0 3px 8px rgba(0,0,0,0.12);
         }
 
         .group-title {
             font-size: 13px;
             text-transform: uppercase;
-            color: #6d6d72;
+            color: var(--secondary);
             padding: 16px 16px 6px;
             margin: 0;
         }
 
         .list-group {
-            background-color: #ffffff;
+            background-color: var(--card);
             border-radius: 10px;
             margin: 0 16px 24px;
             overflow: hidden;
@@ -87,21 +100,20 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
             padding: 12px 16px;
-            border-bottom: 1px solid #c6c6c8;
+            border-bottom: 1px solid var(--separator);
             font-size: 17px;
         }
 
-        .list-item:last-child {
-            border-bottom: none;
-        }
+        .list-item:last-child { border-bottom: none; }
 
         .list-item input[type="number"],
         .list-item input[type="text"] {
             border: none;
             text-align: right;
             font-size: 17px;
-            color: #8e8e93;
+            color: var(--placeholder);
             background: transparent;
             outline: none;
             width: 150px;
@@ -111,12 +123,13 @@
         .list-item select {
             border: none;
             font-size: 17px;
-            color: #8e8e93;
+            color: var(--placeholder);
             background: transparent;
             outline: none;
             direction: rtl;
             font-family: inherit;
-            width: 200px;
+            width: 220px;
+            max-width: 58%;
         }
 
         input::-webkit-outer-spin-button,
@@ -126,44 +139,54 @@
         }
 
         .table-header {
-            background-color: #f2f2f7;
+            background-color: var(--bg);
             font-size: 12px;
-            color: #6d6d72;
+            color: var(--secondary);
             text-transform: uppercase;
-            border-bottom: 1px solid #c6c6c8;
+            border-bottom: 1px solid var(--separator);
             padding: 8px 16px;
         }
 
-        .col-name {
-            flex: 1.5;
+        .col-name { flex: 1.5; }
+        .col-usd, .col-gtq { flex: 1; text-align: right; color: var(--placeholder); }
+        .dash { color: var(--secondary); }
+        .local-only { color: var(--text); font-variant-numeric: tabular-nums; }
+        .guatemala-only { color: var(--blue); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+        .total-row { font-weight: 700; }
+        .total-row .col-usd { color: var(--green); }
+        .total-row .col-gtq { color: var(--blue); }
+
+        .final-total-card {
+            background-color: var(--card);
+            border-radius: 14px;
+            margin: 0 16px 28px;
+            padding: 18px 16px;
         }
 
-        .col-usd {
-            flex: 1;
-            text-align: right;
-            color: #8e8e93;
+        .final-total-label {
+            color: var(--secondary);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
-        .col-gtq {
-            flex: 1;
-            text-align: right;
-            color: #8e8e93;
+        .final-total-gtq {
+            font-size: 32px;
+            font-weight: 750;
+            color: var(--blue);
+            margin-top: 4px;
         }
 
-        .total-row {
+        .final-total-usd {
+            font-size: 18px;
+            color: var(--green);
             font-weight: 600;
-        }
-
-        .total-row .col-usd {
-            color: #34c759;
-        }
-
-        .total-row .col-gtq {
-            color: #007aff;
+            margin-top: 2px;
         }
 
         .ios-button {
-            background-color: #007aff;
+            background-color: var(--blue);
             color: #fff;
             border: none;
             border-radius: 12px;
@@ -171,209 +194,324 @@
             font-size: 17px;
             font-weight: 600;
             width: calc(100% - 32px);
-            margin: 0 16px 24px;
+            margin: 0 16px 12px;
             cursor: pointer;
         }
 
-        #config-section {
+        .ios-button.green { background-color: var(--green); }
+        .ios-button.red { background-color: var(--red); }
+
+        .settings-note {
+            color: var(--secondary);
+            font-size: 13px;
+            line-height: 1.35;
+            padding: 0 16px 8px;
+        }
+
+        .switch-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .switch {
+            position: relative;
+            width: 51px;
+            height: 31px;
+            flex: 0 0 auto;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute; inset: 0;
+            background: #787880;
+            border-radius: 31px;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .slider:before {
+            content: "";
+            position: absolute;
+            height: 27px;
+            width: 27px;
+            left: 2px;
+            top: 2px;
+            background: white;
+            border-radius: 50%;
+            transition: .2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,.25);
+        }
+
+        .switch input:checked + .slider { background: var(--green); }
+        .switch input:checked + .slider:before { transform: translateX(20px); }
+        .switch input:disabled + .slider { opacity: .5; cursor: default; }
+
+        .origin-search-wrap {
+            padding: 10px 16px 6px;
+        }
+
+        .origin-search {
+            width: 100% !important;
+            max-width: none !important;
+            text-align: left !important;
+            color: var(--text) !important;
+            background: var(--bg) !important;
+            border: 1px solid var(--separator) !important;
+            border-radius: 10px !important;
+            padding: 10px 12px !important;
+            font-size: 17px !important;
+        }
+
+        .origin-results {
+            max-height: 300px;
+            overflow-y: auto;
+            border-top: 1px solid var(--separator);
+        }
+
+        .origin-result {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            width: 100%;
+            border: 0;
+            border-bottom: 1px solid var(--separator);
+            background: transparent;
+            color: var(--text);
+            padding: 11px 16px;
+            text-align: left;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .origin-result:last-child { border-bottom: 0; }
+        .origin-result:active { background: var(--control); }
+
+        .origin-main {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .origin-name {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .origin-meta {
+            display: block;
+            color: var(--secondary);
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .origin-price {
+            color: var(--placeholder);
+            white-space: nowrap;
+            font-size: 15px;
+        }
+
+        .selected-origin {
+            color: var(--secondary);
+            font-size: 13px;
+            padding: 0 16px 10px;
+        }
+
+        .quote-note {
             display: none;
+            color: var(--red);
+            font-size: 13px;
+            line-height: 1.35;
+            padding: 0 16px 12px;
+        }
+
+        .settings-section-label {
+            color: var(--secondary);
+            font-size: 13px;
+        }
+
+        #config-section { display: none; }
+
+        @media (max-width: 480px) {
+            .list-item { font-size: 16px; }
+            .list-item select { max-width: 55%; }
+            .final-total-gtq { font-size: 28px; }
         }
     </style>
 </head>
-
 <body>
-
     <div class="ios-header">Importadora Goyo</div>
 
     <div class="segmented-control">
-        <div class="segment active" onclick="switchTab('calc', this)">
-            Calculadora
-        </div>
-
-        <div class="segment" onclick="switchTab('config', this)">
-            Ajustes
-        </div>
+        <div id="tab-calc" class="segment active" onclick="switchTab('calc', this)">Calculadora</div>
+        <div id="tab-config" class="segment" onclick="switchTab('config', this)">Ajustes</div>
     </div>
 
-    <!-- CALCULATOR UI -->
     <div id="calc-section">
-
         <div class="group-title">Oferta y Vehículo</div>
-
         <div class="list-group">
-
             <div class="list-item">
                 <span>Precio Oferta ($)</span>
-                <input
-                    type="number"
-                    id="precio"
-                    placeholder="0.00"
-                    step="0.01"
-                    min="0"
-                    oninput="calcular()"
-                >
+                <input type="number" id="precio" placeholder="0.00" step="0.01" min="0" oninput="calcular()">
             </div>
-
             <div class="list-item">
                 <span>Tamaño</span>
                 <select id="size" onchange="calcular()"></select>
             </div>
-
             <div class="list-item">
                 <span>Extras ($)</span>
-                <input
-                    type="number"
-                    id="custom"
-                    placeholder="0.00"
-                    step="0.01"
-                    min="0"
-                    oninput="calcular()"
-                >
+                <input type="number" id="custom" placeholder="0.00" step="0.01" min="0" oninput="calcular()">
             </div>
-
         </div>
 
         <div class="group-title">Rutas y Logística</div>
-
         <div class="list-group">
+            <div class="origin-search-wrap">
+                <input
+                    type="search"
+                    id="origin-search"
+                    class="origin-search"
+                    placeholder="Buscar ubicación de Copart..."
+                    autocomplete="off"
+                    oninput="buscarOrigen()"
+                >
+            </div>
 
-            <div class="list-item">
-                <span>Origen (Grúa)</span>
-                <select id="tow" onchange="alCambiarGrua()"></select>
+            <div id="origin-results" class="origin-results"></div>
+
+            <div id="selected-origin" class="selected-origin">
+                Origen seleccionado: —
+            </div>
+
+            <div id="origin-quote-note" class="quote-note">
+                Esta ubicación figura como <strong>A cotizar</strong> en la lista de Matus International y no se suma como una tarifa de grúa fija.
             </div>
 
             <div class="list-item">
                 <span>Puerto Salida</span>
-
-                <select id="port" onchange="calcular()">
+                <select id="port" disabled>
                     <option value="California">California</option>
                     <option value="Florida">Florida</option>
                     <option value="Philadelphia">Philadelphia</option>
                 </select>
             </div>
-
         </div>
 
         <div class="group-title">Desglose Final</div>
-
         <div class="list-group">
-
             <div class="list-item table-header">
                 <span class="col-name">Concepto</span>
                 <span class="col-usd">USD ($)</span>
                 <span class="col-gtq">GTQ (Q)</span>
             </div>
-
-            <div class="list-item">
-                <span class="col-name">Oferta</span>
-                <span class="col-usd" id="u-car">0.00</span>
-                <span class="col-gtq" id="g-car">0.00</span>
-            </div>
-
-            <div class="list-item">
-                <span class="col-name">Copart Fee</span>
-                <span class="col-usd" id="u-fee">0.00</span>
-                <span class="col-gtq" id="g-fee">0.00</span>
-            </div>
-
-            <div class="list-item">
-                <span class="col-name">Grúa</span>
-                <span class="col-usd" id="u-tow">0.00</span>
-                <span class="col-gtq" id="g-tow">0.00</span>
-            </div>
-
-            <div class="list-item">
-                <span class="col-name">Flete Marít.</span>
-                <span class="col-usd" id="u-mar">0.00</span>
-                <span class="col-gtq" id="g-mar">0.00</span>
-            </div>
-
-            <div class="list-item">
-                <span class="col-name">Banco Fee</span>
-                <span class="col-usd" id="u-bank">0.00</span>
-                <span class="col-gtq" id="g-bank">0.00</span>
-            </div>
-
-            <div class="list-item">
-                <span class="col-name">Extras</span>
-                <span class="col-usd" id="u-custom">0.00</span>
-                <span class="col-gtq" id="g-custom">0.00</span>
-            </div>
-
-            <div class="list-item total-row">
-                <span class="col-name">TOTAL</span>
-                <span class="col-usd" id="u-total">0.00</span>
-                <span class="col-gtq" id="g-total">0.00</span>
-            </div>
-
+            <div class="list-item"><span class="col-name">Oferta</span><span class="col-usd" id="u-car">0.00</span><span class="col-gtq" id="g-car">0.00</span></div>
+            <div class="list-item"><span class="col-name">Copart Fee</span><span class="col-usd" id="u-fee">0.00</span><span class="col-gtq" id="g-fee">0.00</span></div>
+            <div class="list-item"><span class="col-name">Grúa</span><span class="col-usd" id="u-tow">0.00</span><span class="col-gtq" id="g-tow">0.00</span></div>
+            <div class="list-item"><span class="col-name">Flete Marít.</span><span class="col-usd" id="u-mar">0.00</span><span class="col-gtq" id="g-mar">0.00</span></div>
+            <div class="list-item"><span class="col-name">Banco Fee</span><span class="col-usd" id="u-bank">0.00</span><span class="col-gtq" id="g-bank">0.00</span></div>
+            <div class="list-item"><span class="col-name">Extras</span><span class="col-usd" id="u-custom">0.00</span><span class="col-gtq" id="g-custom">0.00</span></div>
+            <div class="list-item total-row"><span class="col-name">TOTAL</span><span class="col-usd" id="u-total">0.00</span><span class="col-gtq" id="g-total">0.00</span></div>
         </div>
 
+        <div class="group-title">Costos en Guatemala</div>
+        <div class="list-group">
+            <div class="list-item">
+                <span>Tipo de Vehículo</span>
+                <select id="guatemala-vehiculo" onchange="calcular()">
+                    <option value="normal">Vehículo Normal (+20%)</option>
+                    <option value="pickup">Pick Up (+5%)</option>
+                    <option value="4x4">Camioneta 4x4 (+15%)</option>
+                </select>
+            </div>
+            <div class="list-item">
+                <span>Pintura (Q)</span>
+                <input
+                    type="number"
+                    id="pintura"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    oninput="calcular()"
+                >
+            </div>
+            <div class="list-item">
+                <span>Repuestos (Q)</span>
+                <input
+                    type="number"
+                    id="repuestos"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    oninput="calcular()"
+                >
+            </div>
+        </div>
+
+        <div class="group-title">Desglose de Costos en Guatemala</div>
+        <div class="list-group">
+            <div class="list-item table-header">
+                <span class="col-name">Concepto</span>
+                <span class="col-usd">USD ($)</span>
+                <span class="col-gtq">GTQ (Q)</span>
+            </div>
+            <div class="list-item"><span class="col-name" id="label-guatemala-vehiculo">Vehículo Normal (+20%)</span><span class="col-usd dash">—</span><span class="col-gtq guatemala-only" id="g-guatemala-vehiculo">0.00</span></div>
+            <div class="list-item"><span class="col-name">Grúa Barrios</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-barrios">0.00</span></div>
+            <div class="list-item"><span class="col-name">Trámite</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-tramite">0.00</span></div>
+            <div class="list-item"><span class="col-name">Grúa Guate</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-guate">0.00</span></div>
+            <div class="list-item"><span class="col-name">Pintura</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-pintura">0.00</span></div>
+            <div class="list-item"><span class="col-name">Repuestos</span><span class="col-usd dash">—</span><span class="col-gtq local-only" id="g-repuestos">0.00</span></div>
+            <div class="list-item total-row"><span class="col-name">TOTAL GUATEMALA</span><span class="col-usd dash">—</span><span class="col-gtq guatemala-only" id="g-guatemala-total">0.00</span></div>
+        </div>
+
+        <div class="final-total-card">
+            <div class="final-total-label">Precio Final</div>
+            <div class="final-total-gtq" id="final-gtq">Q0.00</div>
+            <div class="final-total-usd" id="final-usd">≈ $0.00 USD</div>
+        </div>
     </div>
 
-
-    <!-- SETTINGS UI -->
     <div id="config-section">
-
         <div class="group-title">Variables Financieras</div>
-
         <div class="list-group">
-
-            <div class="list-item">
-                <span>Cambio a Quetzal (Q)</span>
-                <input
-                    type="number"
-                    id="cfg-tasa"
-                    step="0.01"
-                >
-            </div>
-
-            <div class="list-item">
-                <span>Fee Bancario ($)</span>
-                <input
-                    type="number"
-                    id="cfg-banco"
-                    step="0.01"
-                >
-            </div>
-
+            <div class="list-item"><span>Cambio a Quetzal (Q)</span><input type="number" id="cfg-tasa" step="0.01"></div>
+            <div class="list-item"><span>Fee Bancario ($)</span><input type="number" id="cfg-banco" step="0.01"></div>
         </div>
+
+        <div class="group-title">Costos en Guatemala</div>
+        <div class="list-group">
+            <div class="list-item"><span>Vehículo Normal (%)</span><input type="number" id="cfg-veh-normal" step="0.1" min="0"></div>
+            <div class="list-item"><span>Pick Up (%)</span><input type="number" id="cfg-veh-pickup" step="0.1" min="0"></div>
+            <div class="list-item"><span>Camioneta 4x4 (%)</span><input type="number" id="cfg-veh-4x4" step="0.1" min="0"></div>
+            <div class="list-item"><span>Grúa Barrios (Q)</span><input type="number" id="cfg-barrios" step="1" min="0"></div>
+            <div class="list-item"><span>Trámite (Q)</span><input type="number" id="cfg-tramite" step="1" min="0"></div>
+            <div class="list-item"><span>Grúa Guate (Q)</span><input type="number" id="cfg-guate" step="1" min="0"></div>
+        </div>
+
+        <div class="group-title">Apariencia</div>
+        <div class="list-group">
+            <div class="list-item">
+                <div class="switch-row"><span>Modo oscuro</span><label class="switch"><input type="checkbox" id="cfg-dark" onchange="aparienciaCambiar()"><span class="slider"></span></label></div>
+            </div>
+            <div class="list-item">
+                <div class="switch-row"><span>Automático (usar modo del dispositivo)</span><label class="switch"><input type="checkbox" id="cfg-auto-dark" onchange="aparienciaCambiar()"><span class="slider"></span></label></div>
+            </div>
+        </div>
+        <div class="settings-note">Cuando Automático está activo, la calculadora sigue el modo claro/oscuro del iPhone, iPad o computadora. El interruptor de modo oscuro manual queda como respaldo cuando Automático está desactivado.</div>
 
         <div class="group-title">Editor de Grúas y Orígenes</div>
+        <div class="list-group" id="origins-list" style="max-height: 400px; overflow-y: auto;"></div>
 
-        <div
-            class="list-group"
-            id="origins-list"
-            style="max-height: 400px; overflow-y: auto;"
-        >
-            <!-- Generado por JS -->
-        </div>
-
-        <button
-            class="ios-button"
-            style="background-color: #34c759;"
-            onclick="agregarOrigen()"
-        >
-            + Añadir Nuevo Origen
-        </button>
-
-        <button
-            class="ios-button"
-            onclick="guardarConfig()"
-        >
-            Guardar Cambios
-        </button>
-
+        <button class="ios-button green" onclick="agregarOrigen()">+ Añadir Nuevo Origen</button>
+        <button class="ios-button" onclick="guardarConfig()">Guardar Cambios</button>
+        <button class="ios-button red" onclick="restablecerDatos()">Restablecer datos y recargar</button>
+        <div class="settings-note">Restablecer elimina los datos guardados en este navegador y vuelve a cargar esta página usando los valores incluidos en la versión actual del HTML.</div>
     </div>
 
-
 <script>
-
-    /*
-     * ============================================================
-     * DEFAULT DATA
-     * ============================================================
-     */
-
     const defaultData = {
 
         /*
@@ -484,237 +622,1869 @@
         },
 
         gruas: [
+        {
+                "abr": "AZ",
+                "nombre": "Phoenix",
+                "precio": 275,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "AZ",
+                "nombre": "Phoenix North",
+                "precio": 325,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "AZ",
+                "nombre": "Tucson",
+                "precio": 400,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Adelanto",
+                "precio": 300,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Antelope",
+                "precio": 350,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Bakersfield",
+                "precio": 250,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Fresno",
+                "precio": 300,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Hayward",
+                "precio": 385,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Long Beach",
+                "precio": 150,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Los Angeles",
+                "precio": 150,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Martinez",
+                "precio": 375,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Mentone",
+                "precio": 325,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Napa",
+                "precio": 450,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "R.Cucamonga",
+                "precio": 200,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Redding",
+                "precio": 550,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Sacramento",
+                "precio": 325,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "San Bernardino",
+                "precio": 190,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "San Diego",
+                "precio": 235,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "San Jose",
+                "precio": 385,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "So Sacramento",
+                "precio": 325,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Sun Valley",
+                "precio": 200,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Vallejo",
+                "precio": 375,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Van Nuys",
+                "precio": 195,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CO",
+                "nombre": "Colorado Springs",
+                "precio": 695,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CO",
+                "nombre": "Denver",
+                "precio": 695,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CO",
+                "nombre": "Denver Central",
+                "precio": 695,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CO",
+                "nombre": "Denver East",
+                "precio": 695,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CO",
+                "nombre": "Denver South",
+                "precio": 695,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "HI",
+                "nombre": "Honolulu",
+                "precio": 0,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": true
+        },
+        {
+                "abr": "ID",
+                "nombre": "Boise",
+                "precio": 775,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MT",
+                "nombre": "Billings",
+                "precio": 0,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": true
+        },
+        {
+                "abr": "MT",
+                "nombre": "Helena",
+                "precio": 0,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": true
+        },
+        {
+                "abr": "NV",
+                "nombre": "Las Vegas",
+                "precio": 325,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NV",
+                "nombre": "Reno",
+                "precio": 525,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NM",
+                "nombre": "Albuquerque",
+                "precio": 795,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "OR",
+                "nombre": "Eugene",
+                "precio": 595,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "OR",
+                "nombre": "Portland North",
+                "precio": 595,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "OR",
+                "nombre": "Portland South",
+                "precio": 595,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "UT",
+                "nombre": "Ogden",
+                "precio": 435,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "UT",
+                "nombre": "Salt Lake City",
+                "precio": 435,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "WA",
+                "nombre": "Graham",
+                "precio": 695,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "WA",
+                "nombre": "North Seattle",
+                "precio": 750,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "WA",
+                "nombre": "Pasco",
+                "precio": 850,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "WA",
+                "nombre": "Spokane",
+                "precio": 850,
+                "puerto": "California",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Lancaster",
+                "precio": 300,
+                "puerto": "California",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Modesto",
+                "precio": 450,
+                "puerto": "California",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "San Jose / San Martin",
+                "precio": 415,
+                "puerto": "California",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "CA",
+                "nombre": "Santa Paula",
+                "precio": 300,
+                "puerto": "California",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NV",
+                "nombre": "Auction lane",
+                "precio": 350,
+                "puerto": "California",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NV",
+                "nombre": "Apex Power",
+                "precio": 400,
+                "puerto": "California",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "UT",
+                "nombre": "Tooele",
+                "precio": 550,
+                "puerto": "California",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "WA",
+                "nombre": "North Seattle Avenue northeast",
+                "precio": 850,
+                "puerto": "California",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "WA",
+                "nombre": "Spanaway",
+                "precio": 725,
+                "puerto": "California",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "AL",
+                "nombre": "Birmingham",
+                "precio": 475,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "AL",
+                "nombre": "Cusseta",
+                "precio": 545,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "AL",
+                "nombre": "Dothan",
+                "precio": 475,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "AL",
+                "nombre": "Mobile",
+                "precio": 450,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "AL",
+                "nombre": "Mobile South",
+                "precio": 495,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "AL",
+                "nombre": "Montgomery",
+                "precio": 450,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "AL",
+                "nombre": "Tanner",
+                "precio": 495,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "AR",
+                "nombre": "Fayetteville",
+                "precio": 725,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "AR",
+                "nombre": "Little Rock",
+                "precio": 750,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Fort. Pierce",
+                "precio": 150,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Jacksonville North",
+                "precio": 250,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Miami Central",
+                "precio": 100,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Miami North",
+                "precio": 100,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Miami South",
+                "precio": 100,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Ocala",
+                "precio": 250,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Orlando North",
+                "precio": 185,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Orlando South",
+                "precio": 185,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Punta Gorda",
+                "precio": 220,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Punta Gorda South",
+                "precio": 225,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Tallahassee",
+                "precio": 320,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Tampa North",
+                "precio": 250,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Tampa South",
+                "precio": 205,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "West Palm Beach",
+                "precio": 120,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "GA",
+                "nombre": "Atlanta West",
+                "precio": 345,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "GA",
+                "nombre": "Augusta",
+                "precio": 395,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "GA",
+                "nombre": "Cartersville",
+                "precio": 345,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "GA",
+                "nombre": "Fairburn",
+                "precio": 345,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "GA",
+                "nombre": "Macon",
+                "precio": 345,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "GA",
+                "nombre": "Savannah",
+                "precio": 345,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "GA",
+                "nombre": "Tifton",
+                "precio": 345,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "IL",
+                "nombre": "Chicago North",
+                "precio": 695,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "IL",
+                "nombre": "Chicago South",
+                "precio": 695,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "IL",
+                "nombre": "Peoria",
+                "precio": 825,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "IL",
+                "nombre": "Southern Illinois",
+                "precio": 675,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "IL",
+                "nombre": "Wheeling",
+                "precio": 675,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "IN",
+                "nombre": "Cicero",
+                "precio": 700,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "IN",
+                "nombre": "Dyer",
+                "precio": 700,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "IN",
+                "nombre": "Fort Wayne",
+                "precio": 900,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "IN",
+                "nombre": "Indianapolis",
+                "precio": 645,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "IA",
+                "nombre": "Davenport",
+                "precio": 950,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "IA",
+                "nombre": "Des Moines",
+                "precio": 950,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "KS",
+                "nombre": "Kansas City",
+                "precio": 675,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "KS",
+                "nombre": "Wichita",
+                "precio": 800,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "KY",
+                "nombre": "Earlington",
+                "precio": 800,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "KY",
+                "nombre": "Lexington East / West",
+                "precio": 650,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "KY",
+                "nombre": "Louisville",
+                "precio": 650,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "KY",
+                "nombre": "Walton",
+                "precio": 650,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "LA",
+                "nombre": "Baton Rogue",
+                "precio": 495,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "LA",
+                "nombre": "New Orleans",
+                "precio": 495,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "LA",
+                "nombre": "Shreveport",
+                "precio": 675,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MN",
+                "nombre": "Minneapolis",
+                "precio": 795,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MN",
+                "nombre": "Minneapolis North",
+                "precio": 795,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MN",
+                "nombre": "St. Cloud",
+                "precio": 850,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MS",
+                "nombre": "Jackson",
+                "precio": 475,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MO",
+                "nombre": "Columbia",
+                "precio": 750,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MO",
+                "nombre": "Sikeston",
+                "precio": 0,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": true
+        },
+        {
+                "abr": "MO",
+                "nombre": "Springfield",
+                "precio": 725,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MO",
+                "nombre": "St. Louis",
+                "precio": 675,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NC",
+                "nombre": "China Grove",
+                "precio": 400,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NC",
+                "nombre": "Concord",
+                "precio": 400,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NC",
+                "nombre": "Gastonia",
+                "precio": 425,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NC",
+                "nombre": "LaGrange",
+                "precio": 495,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NC",
+                "nombre": "Lumberton",
+                "precio": 400,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NC",
+                "nombre": "Mebane",
+                "precio": 400,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NC",
+                "nombre": "Mocksville",
+                "precio": 430,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NC",
+                "nombre": "Raleigh",
+                "precio": 395,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NC",
+                "nombre": "Raleigh North",
+                "precio": 395,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "OK",
+                "nombre": "Oklahoma City",
+                "precio": 750,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "OK",
+                "nombre": "Tulsa",
+                "precio": 750,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "SC",
+                "nombre": "Columbia",
+                "precio": 335,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "SC",
+                "nombre": "North Charleston",
+                "precio": 335,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "SC",
+                "nombre": "Spartanburg",
+                "precio": 375,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "TN",
+                "nombre": "Knoxville",
+                "precio": 480,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "TN",
+                "nombre": "Memphis",
+                "precio": 480,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "TN",
+                "nombre": "Nashville",
+                "precio": 480,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "TX",
+                "nombre": "Austin",
+                "precio": 500,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "TX",
+                "nombre": "Dallas South",
+                "precio": 500,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "TX",
+                "nombre": "Ft Worth",
+                "precio": 600,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "TX",
+                "nombre": "Houston",
+                "precio": 565,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "TX",
+                "nombre": "Houston East",
+                "precio": 565,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "TX",
+                "nombre": "San Antonio",
+                "precio": 500,
+                "puerto": "Florida",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "AL",
+                "nombre": "Birmingham Sub lote",
+                "precio": 535,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "AR",
+                "nombre": "Little Rock Sub lote",
+                "precio": 800,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "TX",
+                "nombre": "FT. Worth Sublot",
+                "precio": 650,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "IL",
+                "nombre": "Chicago Heights",
+                "precio": 800,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "IL",
+                "nombre": "Racehorse Drive Sublot",
+                "precio": 725,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "GA",
+                "nombre": "Vertia Augusta",
+                "precio": 450,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "GA",
+                "nombre": "Vertia Savannah",
+                "precio": 450,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "KY",
+                "nombre": "Earlington Sublot",
+                "precio": 850,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "KY",
+                "nombre": "Greenville Sublot",
+                "precio": 725,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NC",
+                "nombre": "Mebane Sublot",
+                "precio": 450,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NC",
+                "nombre": "Winston-Salem Sublote",
+                "precio": 0,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": true
+        },
+        {
+                "abr": "OK",
+                "nombre": "Madera Blvd",
+                "precio": 800,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "OK",
+                "nombre": "Tulsa Sublot",
+                "precio": 800,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "SC",
+                "nombre": "Columbia Gaston",
+                "precio": 395,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "SC",
+                "nombre": "Columbia Sha Liu",
+                "precio": 400,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "IN",
+                "nombre": "Indy Minnesota Street 46241",
+                "precio": 725,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "IA",
+                "nombre": "Davenport IA Sub Lot 169",
+                "precio": 975,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "IA",
+                "nombre": "Metro Sublot",
+                "precio": 975,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "KS",
+                "nombre": "Gibbs Road Kansas City, Kansas 66111",
+                "precio": 725,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "KS",
+                "nombre": "Kansas City, KS, Sublote Yard 17",
+                "precio": 725,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "MN",
+                "nombre": "Elk river Minneapolis North",
+                "precio": 850,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "MN",
+                "nombre": "Blame Minneapolis North",
+                "precio": 850,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "MN",
+                "nombre": "Hamlake",
+                "precio": 850,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "MN",
+                "nombre": "Fredley",
+                "precio": 850,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "MN",
+                "nombre": "St. Cloud Avon",
+                "precio": 850,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "MO",
+                "nombre": "1619 S Golden Ave Springfield",
+                "precio": 775,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "MO",
+                "nombre": "Taussing Avenue Bridgeton",
+                "precio": 725,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Clewiston",
+                "precio": 175,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Mulberry Tampa South",
+                "precio": 250,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Okeechobee",
+                "precio": 255,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "FL",
+                "nombre": "Thonotosassa",
+                "precio": 250,
+                "puerto": "Florida",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "CT",
+                "nombre": "Hartford",
+                "precio": 300,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CT",
+                "nombre": "Hartford Springfield",
+                "precio": 325,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "DE",
+                "nombre": "Seaford",
+                "precio": 200,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "ME",
+                "nombre": "Lyman",
+                "precio": 560,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "ME",
+                "nombre": "Windham",
+                "precio": 600,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MD",
+                "nombre": "Baltimore",
+                "precio": 185,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MD",
+                "nombre": "Baltimore East",
+                "precio": 240,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MD",
+                "nombre": "Washington DC",
+                "precio": 195,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MA",
+                "nombre": "Boston North",
+                "precio": 445,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MA",
+                "nombre": "Boston South",
+                "precio": 435,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MA",
+                "nombre": "Freetown",
+                "precio": 425,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MA",
+                "nombre": "West Warren",
+                "precio": 435,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MI",
+                "nombre": "Detroit",
+                "precio": 775,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MI",
+                "nombre": "Flint",
+                "precio": 775,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MI",
+                "nombre": "Ionia",
+                "precio": 0,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": true
+        },
+        {
+                "abr": "MI",
+                "nombre": "Kincheloe",
+                "precio": 0,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": true
+        },
+        {
+                "abr": "MI",
+                "nombre": "Lansing",
+                "precio": 775,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "MI",
+                "nombre": "Wayland",
+                "precio": 775,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NH",
+                "nombre": "Candia",
+                "precio": 500,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NY",
+                "nombre": "Albany",
+                "precio": 300,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NY",
+                "nombre": "Buffalo",
+                "precio": 575,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NY",
+                "nombre": "Long Island",
+                "precio": 280,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NY",
+                "nombre": "Newburgh",
+                "precio": 255,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NY",
+                "nombre": "Rochester",
+                "precio": 415,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "NY",
+                "nombre": "Syracuse",
+                "precio": 370,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "OH",
+                "nombre": "Cleveland East / West",
+                "precio": 575,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "OH",
+                "nombre": "Columbus",
+                "precio": 575,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "OH",
+                "nombre": "Dayton",
+                "precio": 575,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "PA",
+                "nombre": "Altoona",
+                "precio": 330,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "PA",
+                "nombre": "Chambersburg",
+                "precio": 220,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "PA",
+                "nombre": "Harrisburg",
+                "precio": 170,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "PA",
+                "nombre": "Philadelphia",
+                "precio": 145,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "PA",
+                "nombre": "Philadelphia East",
+                "precio": 145,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "PA",
+                "nombre": "Pittsburgh East/South/West",
+                "precio": 375,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "PA",
+                "nombre": "Pittsburgh-North",
+                "precio": 375,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "PA",
+                "nombre": "Scranton",
+                "precio": 190,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "PA",
+                "nombre": "York Haven",
+                "precio": 175,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "RI",
+                "nombre": "Exeter",
+                "precio": 410,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "VT",
+                "nombre": "Rutland",
+                "precio": 700,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "VA",
+                "nombre": "Danville",
+                "precio": 480,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "VA",
+                "nombre": "Fredericksburg",
+                "precio": 310,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "VA",
+                "nombre": "Hampton",
+                "precio": 395,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "VA",
+                "nombre": "Richmond",
+                "precio": 295,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "VA",
+                "nombre": "Richmond East",
+                "precio": 350,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "WI",
+                "nombre": "Madison South",
+                "precio": 825,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "WI",
+                "nombre": "Milwaukee South",
+                "precio": 825,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "WV",
+                "nombre": "Charleston",
+                "precio": 550,
+                "puerto": "Philadelphia",
+                "tipo": "Grúa",
+                "cotizar": false
+        },
+        {
+                "abr": "CT",
+                "nombre": "Hartford New Britain",
+                "precio": 300,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "DE",
+                "nombre": "Seaford Fruitland",
+                "precio": 300,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "MD",
+                "nombre": "Baltimore East Laurel",
+                "precio": 230,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "MD",
+                "nombre": "White Marsh",
+                "precio": 250,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "MD",
+                "nombre": "White Plaine Washington DC",
+                "precio": 225,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "MA",
+                "nombre": "Boston North Hudson",
+                "precio": 525,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NJ",
+                "nombre": "Chambersburg",
+                "precio": 220,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NJ",
+                "nombre": "Coplay",
+                "precio": 225,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NJ",
+                "nombre": "Jobstown",
+                "precio": 225,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NJ",
+                "nombre": "Somerville Sublot York Haven",
+                "precio": 200,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NJ",
+                "nombre": "Somerville Richlandtown",
+                "precio": 225,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NJ",
+                "nombre": "White Plaine",
+                "precio": 250,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NJ",
+                "nombre": "White Plaine Somerville",
+                "precio": 250,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NY",
+                "nombre": "Alden",
+                "precio": 650,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NY",
+                "nombre": "Amsterdan",
+                "precio": 425,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "NY",
+                "nombre": "Newburgh Route",
+                "precio": 275,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "PA",
+                "nombre": "Philadelphia East sub lot",
+                "precio": 145,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "PA",
+                "nombre": "Philadelphia East Malvern",
+                "precio": 225,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        },
+        {
+                "abr": "PA",
+                "nombre": "Pittsburgh West Adamsburg",
+                "precio": 375,
+                "puerto": "Philadelphia",
+                "tipo": "Sub Lote",
+                "cotizar": false
+        }
+],
 
-            // ====================================================
-            // FLORIDA PORT
-            // ====================================================
+        locationsVersion: 2,
 
-            { abr: "AL", nombre: "Birmingham", precio: 475, puerto: "Florida" },
-            { abr: "AL", nombre: "Cusseta", precio: 545, puerto: "Florida" },
-            { abr: "AL", nombre: "Dothan", precio: 475, puerto: "Florida" },
-            { abr: "AL", nombre: "Mobile", precio: 450, puerto: "Florida" },
-            { abr: "AL", nombre: "Mobile South", precio: 495, puerto: "Florida" },
-            { abr: "AL", nombre: "Montgomery", precio: 450, puerto: "Florida" },
-            { abr: "AL", nombre: "Tanner", precio: 495, puerto: "Florida" },
-
-            { abr: "AR", nombre: "Fayetteville", precio: 725, puerto: "Florida" },
-            { abr: "AR", nombre: "Little Rock", precio: 750, puerto: "Florida" },
-
-            { abr: "FL", nombre: "Fort. Pierce", precio: 150, puerto: "Florida" },
-            { abr: "FL", nombre: "Jacksonville North", precio: 250, puerto: "Florida" },
-            { abr: "FL", nombre: "Miami Central", precio: 100, puerto: "Florida" },
-            { abr: "FL", nombre: "Miami North", precio: 100, puerto: "Florida" },
-            { abr: "FL", nombre: "Miami South", precio: 100, puerto: "Florida" },
-            { abr: "FL", nombre: "Ocala", precio: 250, puerto: "Florida" },
-            { abr: "FL", nombre: "Orlando", precio: 185, puerto: "Florida" },
-            { abr: "FL", nombre: "Orlando North", precio: 185, puerto: "Florida" },
-            { abr: "FL", nombre: "Orlando South", precio: 185, puerto: "Florida" },
-            { abr: "FL", nombre: "Punta Gorda", precio: 220, puerto: "Florida" },
-            { abr: "FL", nombre: "Punta Gorda South", precio: 225, puerto: "Florida" },
-            { abr: "FL", nombre: "Tallahassee", precio: 320, puerto: "Florida" },
-            { abr: "FL", nombre: "Tampa North", precio: 250, puerto: "Florida" },
-            { abr: "FL", nombre: "Tampa South", precio: 205, puerto: "Florida" },
-            { abr: "FL", nombre: "West Palm Beach", precio: 120, puerto: "Florida" },
-
-            { abr: "GA", nombre: "Atlanta East/North/South", precio: 345, puerto: "Florida" },
-            { abr: "GA", nombre: "Atlanta West", precio: 345, puerto: "Florida" },
-            { abr: "GA", nombre: "Augusta", precio: 395, puerto: "Florida" },
-            { abr: "GA", nombre: "Cartersville", precio: 345, puerto: "Florida" },
-            { abr: "GA", nombre: "Fairburn", precio: 345, puerto: "Florida" },
-            { abr: "GA", nombre: "Macon", precio: 345, puerto: "Florida" },
-            { abr: "GA", nombre: "Savannah", precio: 345, puerto: "Florida" },
-            { abr: "GA", nombre: "Tifton", precio: 345, puerto: "Florida" },
-
-            { abr: "IL", nombre: "Chicago North", precio: 695, puerto: "Florida" },
-            { abr: "IL", nombre: "Chicago South", precio: 695, puerto: "Florida" },
-            { abr: "IL", nombre: "Peoria", precio: 825, puerto: "Florida" },
-            { abr: "IL", nombre: "Southern Illinois", precio: 675, puerto: "Florida" },
-            { abr: "IL", nombre: "Springfield", precio: 725, puerto: "Florida" },
-            { abr: "IL", nombre: "St. Louis", precio: 675, puerto: "Florida" },
-            { abr: "IL", nombre: "Wheeling", precio: 675, puerto: "Florida" },
-
-            { abr: "IN", nombre: "Cicero", precio: 700, puerto: "Florida" },
-            { abr: "IN", nombre: "Dyer", precio: 700, puerto: "Florida" },
-            { abr: "IN", nombre: "Fort Wayne", precio: 900, puerto: "Florida" },
-            { abr: "IN", nombre: "Indianapolis", precio: 645, puerto: "Florida" },
-
-            { abr: "IA", nombre: "Davenport", precio: 950, puerto: "Florida" },
-            { abr: "IA", nombre: "Des Moines", precio: 950, puerto: "Florida" },
-
-            { abr: "KS", nombre: "Kansas City", precio: 675, puerto: "Florida" },
-            { abr: "KS", nombre: "Wichita", precio: 800, puerto: "Florida" },
-
-            { abr: "KY", nombre: "Earlington", precio: 800, puerto: "Florida" },
-            { abr: "KY", nombre: "Lexington East/West", precio: 650, puerto: "Florida" },
-            { abr: "KY", nombre: "Louisville", precio: 650, puerto: "Florida" },
-            { abr: "KY", nombre: "Walton", precio: 650, puerto: "Florida" },
-
-            { abr: "LA", nombre: "Baton Rogue", precio: 495, puerto: "Florida" },
-            { abr: "LA", nombre: "New Orleans", precio: 495, puerto: "Florida" },
-            { abr: "LA", nombre: "Shreveport", precio: 675, puerto: "Florida" },
-
-            { abr: "MN", nombre: "Minneapolis", precio: 795, puerto: "Florida" },
-            { abr: "MN", nombre: "Minneapolis North", precio: 795, puerto: "Florida" },
-            { abr: "MN", nombre: "St. Cloud", precio: 850, puerto: "Florida" },
-
-            { abr: "MS", nombre: "Jackson", precio: 475, puerto: "Florida" },
-
-            { abr: "MO", nombre: "Columbia", precio: 750, puerto: "Florida" },
-            { abr: "MO", nombre: "St. Louis", precio: 675, puerto: "Florida" },
-
-            { abr: "NC", nombre: "China Grove", precio: 400, puerto: "Florida" },
-            { abr: "NC", nombre: "Concord", precio: 400, puerto: "Florida" },
-            { abr: "NC", nombre: "Gastonia", precio: 425, puerto: "Florida" },
-            { abr: "NC", nombre: "LaGrange", precio: 495, puerto: "Florida" },
-            { abr: "NC", nombre: "Lumberton", precio: 400, puerto: "Florida" },
-            { abr: "NC", nombre: "Mebane", precio: 400, puerto: "Florida" },
-            { abr: "NC", nombre: "Mocksville", precio: 430, puerto: "Florida" },
-            { abr: "NC", nombre: "Raleigh", precio: 395, puerto: "Florida" },
-            { abr: "NC", nombre: "Raleigh North", precio: 395, puerto: "Florida" },
-
-            { abr: "OK", nombre: "Oklahoma City", precio: 750, puerto: "Florida" },
-            { abr: "OK", nombre: "Tulsa", precio: 750, puerto: "Florida" },
-
-            { abr: "SC", nombre: "North Charleston", precio: 335, puerto: "Florida" },
-            { abr: "SC", nombre: "Spartanburg", precio: 375, puerto: "Florida" },
-
-            { abr: "TN", nombre: "Knoxville", precio: 480, puerto: "Florida" },
-            { abr: "TN", nombre: "Memphis", precio: 480, puerto: "Florida" },
-            { abr: "TN", nombre: "Nashville", precio: 480, puerto: "Florida" },
-
-            { abr: "TX", nombre: "Austin", precio: 500, puerto: "Florida" },
-            { abr: "TX", nombre: "Dallas South", precio: 500, puerto: "Florida" },
-            { abr: "TX", nombre: "Ft Worth", precio: 600, puerto: "Florida" },
-            { abr: "TX", nombre: "Houston", precio: 565, puerto: "Florida" },
-            { abr: "TX", nombre: "Houston East", precio: 565, puerto: "Florida" },
-            { abr: "TX", nombre: "San Antonio", precio: 500, puerto: "Florida" },
-
-
-            // ====================================================
-            // CALIFORNIA PORT
-            // ====================================================
-
-            { abr: "AZ", nombre: "Phoenix", precio: 275, puerto: "California" },
-            { abr: "AZ", nombre: "Phoenix North", precio: 325, puerto: "California" },
-            { abr: "AZ", nombre: "Tucson", precio: 400, puerto: "California" },
-
-            { abr: "CA", nombre: "Adelanto", precio: 300, puerto: "California" },
-            { abr: "CA", nombre: "Antelope", precio: 350, puerto: "California" },
-            { abr: "CA", nombre: "Bakersfield", precio: 250, puerto: "California" },
-            { abr: "CA", nombre: "Fresno", precio: 300, puerto: "California" },
-            { abr: "CA", nombre: "Hayward", precio: 385, puerto: "California" },
-            { abr: "CA", nombre: "Long Beach", precio: 150, puerto: "California" },
-            { abr: "CA", nombre: "Los Angeles", precio: 150, puerto: "California" },
-            { abr: "CA", nombre: "Martinez", precio: 375, puerto: "California" },
-            { abr: "CA", nombre: "Mentone", precio: 325, puerto: "California" },
-            { abr: "CA", nombre: "Napa", precio: 450, puerto: "California" },
-            { abr: "CA", nombre: "R.Cucamonga", precio: 200, puerto: "California" },
-            { abr: "CA", nombre: "Redding", precio: 550, puerto: "California" },
-            { abr: "CA", nombre: "Sacramento", precio: 325, puerto: "California" },
-            { abr: "CA", nombre: "San Bernardino", precio: 190, puerto: "California" },
-            { abr: "CA", nombre: "San Diego", precio: 235, puerto: "California" },
-            { abr: "CA", nombre: "San Jose", precio: 385, puerto: "California" },
-            { abr: "CA", nombre: "So Sacramento", precio: 325, puerto: "California" },
-            { abr: "CA", nombre: "Sun Valley", precio: 200, puerto: "California" },
-            { abr: "CA", nombre: "Vallejo", precio: 375, puerto: "California" },
-            { abr: "CA", nombre: "Van Nuys", precio: 195, puerto: "California" },
-
-            { abr: "CO", nombre: "Colorado Springs", precio: 695, puerto: "California" },
-            { abr: "CO", nombre: "Denver", precio: 695, puerto: "California" },
-            { abr: "CO", nombre: "Denver Central", precio: 695, puerto: "California" },
-            { abr: "CO", nombre: "Denver East", precio: 695, puerto: "California" },
-            { abr: "CO", nombre: "Denver South", precio: 695, puerto: "California" },
-
-            { abr: "ID", nombre: "Boise", precio: 775, puerto: "California" },
-
-            { abr: "NV", nombre: "Las Vegas", precio: 325, puerto: "California" },
-            { abr: "NV", nombre: "Reno", precio: 525, puerto: "California" },
-
-            { abr: "NM", nombre: "Albuquerque", precio: 795, puerto: "California" },
-
-            { abr: "OR", nombre: "Eugene", precio: 595, puerto: "California" },
-            { abr: "OR", nombre: "Portland North", precio: 595, puerto: "California" },
-            { abr: "OR", nombre: "Portland South", precio: 595, puerto: "California" },
-
-            { abr: "UT", nombre: "Ogden", precio: 435, puerto: "California" },
-            { abr: "UT", nombre: "Salt Lake City", precio: 435, puerto: "California" },
-
-            { abr: "WA", nombre: "Graham", precio: 695, puerto: "California" },
-            { abr: "WA", nombre: "North Seattle", precio: 750, puerto: "California" },
-            { abr: "WA", nombre: "Pasco", precio: 850, puerto: "California" },
-            { abr: "WA", nombre: "Spokane", precio: 850, puerto: "California" },
-
-
-            // ====================================================
-            // PHILADELPHIA PORT
-            // ====================================================
-
-            { abr: "CT", nombre: "Hartford", precio: 300, puerto: "Philadelphia" },
-            { abr: "CT", nombre: "Hartford Springfield", precio: 325, puerto: "Philadelphia" },
-
-            { abr: "DE", nombre: "Seaford", precio: 200, puerto: "Philadelphia" },
-
-            { abr: "ME", nombre: "Lyman", precio: 560, puerto: "Philadelphia" },
-            { abr: "ME", nombre: "Windham", precio: 600, puerto: "Philadelphia" },
-
-            { abr: "MD", nombre: "Baltimore", precio: 185, puerto: "Philadelphia" },
-            { abr: "MD", nombre: "Baltimore East", precio: 240, puerto: "Philadelphia" },
-            { abr: "MD", nombre: "Washington DC", precio: 195, puerto: "Philadelphia" },
-
-            { abr: "MA", nombre: "Boston North", precio: 445, puerto: "Philadelphia" },
-            { abr: "MA", nombre: "Boston South", precio: 435, puerto: "Philadelphia" },
-            { abr: "MA", nombre: "Freetown", precio: 425, puerto: "Philadelphia" },
-            { abr: "MA", nombre: "West Warren", precio: 435, puerto: "Philadelphia" },
-
-            { abr: "MI", nombre: "Detroit", precio: 775, puerto: "Philadelphia" },
-            { abr: "MI", nombre: "Flint", precio: 775, puerto: "Philadelphia" },
-            { abr: "MI", nombre: "Lansing", precio: 775, puerto: "Philadelphia" },
-            { abr: "MI", nombre: "Wayland", precio: 775, puerto: "Philadelphia" },
-
-            { abr: "NH", nombre: "Candia", precio: 500, puerto: "Philadelphia" },
-
-            { abr: "NJ", nombre: "Glassboro East/West", precio: 145, puerto: "Philadelphia" },
-            { abr: "NJ", nombre: "Somerville", precio: 175, puerto: "Philadelphia" },
-            { abr: "NJ", nombre: "Trenton", precio: 170, puerto: "Philadelphia" },
-
-            { abr: "NY", nombre: "Albany", precio: 300, puerto: "Philadelphia" },
-            { abr: "NY", nombre: "Buffalo", precio: 575, puerto: "Philadelphia" },
-            { abr: "NY", nombre: "Long Island", precio: 280, puerto: "Philadelphia" },
-            { abr: "NY", nombre: "Newburgh", precio: 255, puerto: "Philadelphia" },
-            { abr: "NY", nombre: "Rochester", precio: 415, puerto: "Philadelphia" },
-            { abr: "NY", nombre: "Syracuse", precio: 370, puerto: "Philadelphia" },
-
-            { abr: "OH", nombre: "Cleveland East/West", precio: 575, puerto: "Philadelphia" },
-            { abr: "OH", nombre: "Columbus", precio: 575, puerto: "Philadelphia" },
-            { abr: "OH", nombre: "Dayton", precio: 575, puerto: "Philadelphia" },
-
-            { abr: "PA", nombre: "Altoona", precio: 330, puerto: "Philadelphia" },
-            { abr: "PA", nombre: "Chambersburg", precio: 220, puerto: "Philadelphia" },
-            { abr: "PA", nombre: "Harrisburg", precio: 170, puerto: "Philadelphia" },
-            { abr: "PA", nombre: "Philadelphia", precio: 145, puerto: "Philadelphia" },
-            { abr: "PA", nombre: "Philadelphia East", precio: 145, puerto: "Philadelphia" },
-            { abr: "PA", nombre: "Pittsburgh East/South/West", precio: 375, puerto: "Philadelphia" },
-            { abr: "PA", nombre: "Pittsburgh-North", precio: 375, puerto: "Philadelphia" },
-            { abr: "PA", nombre: "Scranton", precio: 190, puerto: "Philadelphia" },
-            { abr: "PA", nombre: "York Haven", precio: 175, puerto: "Philadelphia" },
-
-            { abr: "RI", nombre: "Exeter", precio: 410, puerto: "Philadelphia" },
-
-            { abr: "VT", nombre: "Rutland", precio: 700, puerto: "Philadelphia" },
-
-            { abr: "VA", nombre: "Danville", precio: 480, puerto: "Philadelphia" },
-            { abr: "VA", nombre: "Fredericksburg", precio: 310, puerto: "Philadelphia" },
-            { abr: "VA", nombre: "Hampton", precio: 395, puerto: "Philadelphia" },
-            { abr: "VA", nombre: "Richmond", precio: 295, puerto: "Philadelphia" },
-            { abr: "VA", nombre: "Richmond East", precio: 350, puerto: "Philadelphia" },
-
-            { abr: "WV", nombre: "Charleston", precio: 550, puerto: "Philadelphia" },
-
-            { abr: "WI", nombre: "Madison South", precio: 825, puerto: "Philadelphia" },
-            { abr: "WI", nombre: "Milwaukee South", precio: 825, puerto: "Philadelphia" }
-
-        ]
-
+        // Guatemala costs
+        guatemala: {
+            vehiculo: {
+                normal: 0.20,
+                pickup: 0.05,
+                "4x4": 0.15
+            },
+            gruaBarrios: 750,
+            tramite: 1750,
+            gruaGuate: 850
+        }
     };
 
 
@@ -724,279 +2494,369 @@
      * ============================================================
      */
 
+
+
     let appData = {};
+    let selectedGruaIndex = 0;
 
+    const STATE_NAMES = {
+        "AL": "Alabama",
+        "AR": "Arkansas",
+        "FL": "Florida",
+        "GA": "Georgia",
+        "IL": "Illinois",
+        "IN": "Indiana",
+        "IA": "Iowa",
+        "KS": "Kansas",
+        "KY": "Kentucky",
+        "LA": "Louisiana",
+        "MN": "Minnesota",
+        "MS": "Mississippi",
+        "MO": "Missouri",
+        "NC": "North Carolina",
+        "OK": "Oklahoma",
+        "SC": "South Carolina",
+        "TN": "Tennessee",
+        "TX": "Texas",
+        "AZ": "Arizona",
+        "CA": "California",
+        "CO": "Colorado",
+        "HI": "Hawaii",
+        "ID": "Idaho",
+        "MT": "Montana",
+        "NV": "Nevada",
+        "NM": "New Mexico",
+        "OR": "Oregon",
+        "UT": "Utah",
+        "WA": "Washington",
+        "CT": "Connecticut",
+        "DE": "Delaware",
+        "ME": "Maine",
+        "MD": "Maryland",
+        "MA": "Massachusetts",
+        "MI": "Michigan",
+        "NH": "New Hampshire",
+        "NJ": "New Jersey",
+        "NY": "New York",
+        "OH": "Ohio",
+        "PA": "Pennsylvania",
+        "RI": "Rhode Island",
+        "VT": "Vermont",
+        "VA": "Virginia",
+        "WI": "Wisconsin",
+        "WV": "West Virginia"
+};
 
-    /*
-     * ============================================================
-     * INITIALIZATION
-     * ============================================================
-     */
+    const PORT_BY_STATE = {
+        "AZ": "California",
+        "CA": "California",
+        "CO": "California",
+        "HI": "California",
+        "ID": "California",
+        "MT": "California",
+        "NV": "California",
+        "NM": "California",
+        "OR": "California",
+        "UT": "California",
+        "WA": "California",
+        "AL": "Florida",
+        "AR": "Florida",
+        "FL": "Florida",
+        "GA": "Florida",
+        "IL": "Florida",
+        "IN": "Florida",
+        "IA": "Florida",
+        "KS": "Florida",
+        "KY": "Florida",
+        "LA": "Florida",
+        "MN": "Florida",
+        "MS": "Florida",
+        "MO": "Florida",
+        "NC": "Florida",
+        "OK": "Florida",
+        "SC": "Florida",
+        "TN": "Florida",
+        "TX": "Florida",
+        "CT": "Philadelphia",
+        "DE": "Philadelphia",
+        "ME": "Philadelphia",
+        "MD": "Philadelphia",
+        "MA": "Philadelphia",
+        "MI": "Philadelphia",
+        "NH": "Philadelphia",
+        "NJ": "Philadelphia",
+        "NY": "Philadelphia",
+        "OH": "Philadelphia",
+        "PA": "Philadelphia",
+        "RI": "Philadelphia",
+        "VT": "Philadelphia",
+        "VA": "Philadelphia",
+        "WI": "Philadelphia",
+        "WV": "Philadelphia"
+};
+
+    let mediaQuery = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+
+    function clone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    function normalizeSearch(value) {
+        return String(value ?? '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .trim();
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? '').replace(/[&<>'"]/g, char => (
+            {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]
+        ));
+    }
+
+    function getPortForState(abr) {
+        return PORT_BY_STATE[String(abr || '').trim().toUpperCase()] || 'Florida';
+    }
+
+    function ensureDefaults(data) {
+        const merged = clone(defaultData);
+
+        if (data && typeof data === 'object') {
+            merged.tipoCambioGTQ = data.tipoCambioGTQ ?? merged.tipoCambioGTQ;
+            merged.bancoFee = data.bancoFee ?? merged.bancoFee;
+            merged.vehiculos = data.vehiculos ?? merged.vehiculos;
+            merged.fletes = data.fletes ?? merged.fletes;
+            merged.appearance = data.appearance ?? merged.appearance;
+            merged.guatemala = {
+                ...merged.guatemala,
+                ...(data.guatemala || {}),
+                vehiculo: {
+                    ...merged.guatemala.vehiculo,
+                    ...((data.guatemala && data.guatemala.vehiculo) || {})
+                }
+            };
+
+            // The current live HTML owns the Copart fee table.
+            merged.copartFees = clone(defaultData.copartFees);
+
+            // The current live HTML also owns the Copart location database.
+            // This upgrades older saved versions once, while preserving later edits.
+            if (data.locationsVersion === defaultData.locationsVersion && Array.isArray(data.gruas)) {
+                merged.gruas = data.gruas;
+            } else {
+                merged.gruas = clone(defaultData.gruas);
+            }
+        }
+
+        merged.locationsVersion = defaultData.locationsVersion;
+        return merged;
+    }
 
     function init() {
-
-        const stored = localStorage.getItem("iosCalcData");
+        const stored = localStorage.getItem('iosCalcData');
 
         if (stored) {
-
             try {
-
-                appData = JSON.parse(stored);
-
-                /*
-                 * IMPORTANT:
-                 * Replace the old Copart fee database every time
-                 * the app starts.
-                 *
-                 * This fixes existing installations that already
-                 * saved the previous broken database to localStorage.
-                 */
-
-                appData.copartFees = JSON.parse(
-                    JSON.stringify(defaultData.copartFees)
-                );
-
-                /*
-                 * Keep old compatibility variables.
-                 */
-
-                appData.feePorcentaje = defaultData.feePorcentaje;
-                appData.limitePorcentaje = defaultData.limitePorcentaje;
-
-                /*
-                 * If an old version somehow lacks these properties,
-                 * restore them from the defaults.
-                 */
-
-                if (!appData.vehiculos) {
-                    appData.vehiculos = JSON.parse(
-                        JSON.stringify(defaultData.vehiculos)
-                    );
-                }
-
-                if (!appData.fletes) {
-                    appData.fletes = JSON.parse(
-                        JSON.stringify(defaultData.fletes)
-                    );
-                }
-
-                if (!appData.gruas) {
-                    appData.gruas = JSON.parse(
-                        JSON.stringify(defaultData.gruas)
-                    );
-                }
-
-                if (typeof appData.bancoFee !== "number") {
-                    appData.bancoFee = defaultData.bancoFee;
-                }
-
-                if (typeof appData.tipoCambioGTQ !== "number") {
-                    appData.tipoCambioGTQ = defaultData.tipoCambioGTQ;
-                }
-
-                localStorage.setItem(
-                    "iosCalcData",
-                    JSON.stringify(appData)
-                );
-
+                appData = ensureDefaults(JSON.parse(stored));
             } catch (e) {
-
-                appData = JSON.parse(
-                    JSON.stringify(defaultData)
-                );
-
-                localStorage.setItem(
-                    "iosCalcData",
-                    JSON.stringify(appData)
-                );
+                appData = ensureDefaults(null);
             }
-
         } else {
-
-            appData = JSON.parse(
-                JSON.stringify(defaultData)
-            );
-
-            localStorage.setItem(
-                "iosCalcData",
-                JSON.stringify(appData)
-            );
+            appData = ensureDefaults(null);
         }
+
+        localStorage.setItem('iosCalcData', JSON.stringify(appData));
 
         poblarSelects();
         renderConfig();
-        alCambiarGrua();
+        aplicarApariencia();
+
+        selectedGruaIndex = appData.gruas.findIndex(g => !g.cotizar);
+        if (selectedGruaIndex < 0) selectedGruaIndex = 0;
+
+        mostrarOrigenSeleccionado();
+        buscarOrigen();
+        alCambiarGrua(selectedGruaIndex);
     }
-
-
-    /*
-     * ============================================================
-     * POPULATE SELECTS
-     * ============================================================
-     */
 
     function poblarSelects() {
-
-        document.getElementById("size").innerHTML =
-            appData.vehiculos
-                .map(v => `<option value="${v}">${v}</option>`)
-                .join("");
-
-        let gruasHTML = "";
-        let currentAbr = "";
-
-        const sorted = [...appData.gruas]
-            .map((g, i) => ({
-                ...g,
-                idx: i
-            }))
-            .sort(
-                (a, b) =>
-                    a.abr.localeCompare(b.abr) ||
-                    a.nombre.localeCompare(b.nombre)
-            );
-
-        sorted.forEach(g => {
-
-            if (g.abr !== currentAbr) {
-
-                if (currentAbr !== "") {
-                    gruasHTML += "</optgroup>";
-                }
-
-                gruasHTML += `<optgroup label="${g.abr}">`;
-
-                currentAbr = g.abr;
-            }
-
-            gruasHTML += `
-                <option value="${g.idx}">
-                    [${g.abr}] ${g.nombre} - $${g.precio}
-                </option>
-            `;
-        });
-
-        if (currentAbr !== "") {
-            gruasHTML += "</optgroup>";
-        }
-
-        document.getElementById("tow").innerHTML = gruasHTML;
+        // Origin selection is now search-based, not a giant <select>.
+        renderLocationResults('');
+        mostrarOrigenSeleccionado();
     }
 
+    function renderLocationResults(query = '') {
+        const resultsEl = document.getElementById('origin-results');
+        if (!resultsEl) return;
 
-    /*
-     * ============================================================
-     * TOW / ORIGIN CHANGE
-     * ============================================================
-     */
+        const q = normalizeSearch(query);
 
-    function alCambiarGrua() {
+        const filtered = appData.gruas
+            .map((g, i) => ({ ...g, idx: i }))
+            .filter(g => {
+                if (!q) return false;
 
-        const originalIndex =
-            document.getElementById("tow").value;
+                const stateName = STATE_NAMES[g.abr] || '';
+                const searchable = normalizeSearch(
+                    `${g.nombre} ${g.abr} ${stateName} ${g.puerto} ${g.tipo}`
+                );
 
-        const grua =
-            appData.gruas[originalIndex];
+                return searchable.includes(q);
+            })
+            .sort((a, b) =>
+                a.puerto.localeCompare(b.puerto) ||
+                a.abr.localeCompare(b.abr) ||
+                a.nombre.localeCompare(b.nombre)
+            );
 
-        if (grua && grua.puerto) {
-
-            document.getElementById("port").value =
-                grua.puerto;
+        if (!q) {
+            resultsEl.innerHTML = `
+                <div class="settings-note" style="padding: 10px 16px;">
+                    Escribe una ciudad, estado o sub lote para buscar entre las ubicaciones Copart.
+                </div>`;
+            return;
         }
 
+        if (!filtered.length) {
+            resultsEl.innerHTML = `
+                <div class="settings-note" style="padding: 10px 16px;">
+                    No se encontraron ubicaciones Copart.
+                </div>`;
+            return;
+        }
+
+        resultsEl.innerHTML = filtered.map(g => {
+            const stateName = STATE_NAMES[g.abr] || g.abr;
+            const price = g.cotizar
+                ? 'A cotizar'
+                : `$${money(g.precio)}`;
+
+            const typeLabel = g.tipo === 'Sub Lote'
+                ? 'Sub Lote'
+                : 'Copart';
+
+            return `
+                <button
+                    type="button"
+                    class="origin-result"
+                    onclick="alCambiarGrua(${g.idx})"
+                >
+                    <span class="origin-main">
+                        <span class="origin-name">
+                            ${escapeHTML(g.nombre)}
+                        </span>
+                        <span class="origin-meta">
+                            [${escapeHTML(g.abr)}] ${escapeHTML(stateName)} · ${typeLabel}
+                        </span>
+                    </span>
+                    <span class="origin-price">${price}</span>
+                </button>`;
+        }).join('');
+    }
+
+    function buscarOrigen() {
+        const input = document.getElementById('origin-search');
+        renderLocationResults(input ? input.value : '');
+    }
+
+    function mostrarOrigenSeleccionado() {
+        const el = document.getElementById('selected-origin');
+        if (!el) return;
+
+        const g = appData.gruas[selectedGruaIndex];
+
+        if (!g) {
+            el.innerText = 'Origen seleccionado: —';
+            return;
+        }
+
+        const stateName = STATE_NAMES[g.abr] || g.abr;
+        const price = g.cotizar ? 'A cotizar' : `$${money(g.precio)}`;
+
+        el.innerHTML =
+            `Origen seleccionado: <strong>${escapeHTML(g.nombre)}</strong> ` +
+            `[${escapeHTML(g.abr)}] · ${escapeHTML(stateName)} · ${price}`;
+    }
+
+    function alCambiarGrua(index) {
+        const parsedIndex = Number.parseInt(index, 10);
+
+        if (Number.isInteger(parsedIndex) &&
+            parsedIndex >= 0 &&
+            parsedIndex < appData.gruas.length) {
+            selectedGruaIndex = parsedIndex;
+        }
+
+        const grua = appData.gruas[selectedGruaIndex];
+
+        if (grua) {
+            const port = getPortForState(grua.abr);
+            document.getElementById('port').value = port;
+        }
+
+        mostrarOrigenSeleccionado();
+
+        const quoteNote = document.getElementById('origin-quote-note');
+        if (quoteNote) {
+            quoteNote.style.display = grua && grua.cotizar ? 'block' : 'none';
+        }
+
+        const search = document.getElementById('origin-search');
+        if (search) search.value = '';
+
+        buscarOrigen();
         calcular();
     }
 
+    function getCopartFee(precio) {
+        const tramo = appData.copartFees.find(t => precio >= t.min && (t.max === null || precio <= t.max));
+        if (!tramo) return 0;
+        return tramo.percentage ? precio * tramo.fee : tramo.fee;
+    }
 
-    /*
-     * ============================================================
-     * CALCULATOR
-     * ============================================================
-     */
+    function money(value) {
+        return (Number.isFinite(value) ? value : 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function moneyGTQ(value) {
+        return (Number.isFinite(value) ? value : 0).toLocaleString('es-GT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
     function calcular() {
-
         const precio =
-            parseFloat(
-                document.getElementById("precio").value
-            ) || 0;
+            parseFloat(document.getElementById('precio').value) || 0;
 
         const size =
-            document.getElementById("size").value;
+            document.getElementById('size').value;
 
         const port =
-            document.getElementById("port").value;
-
-        const towIndex =
-            document.getElementById("tow").value;
-
-        const towPrice =
-            appData.gruas[towIndex]
-                ? parseFloat(appData.gruas[towIndex].precio)
-                : 0;
+            document.getElementById('port').value;
 
         const custom =
-            parseFloat(
-                document.getElementById("custom").value
-            ) || 0;
+            parseFloat(document.getElementById('custom').value) || 0;
+
+        const pintura =
+            parseFloat(document.getElementById('pintura').value) || 0;
+
+        const repuestos =
+            parseFloat(document.getElementById('repuestos').value) || 0;
 
         const tc =
             parseFloat(appData.tipoCambioGTQ) || 0;
 
+        const selectedVehicle =
+            document.getElementById('guatemala-vehiculo').value || 'normal';
 
-        /*
-         * ========================================================
-         * COPART FEE
-         * ========================================================
-         *
-         * The old code only checked:
-         *
-         *     precio <= t.max
-         *
-         * which caused $1,200 to match the old $1,499.99
-         * bracket and incorrectly return $300.
-         *
-         * Now both minimum and maximum are checked.
-         *
-         * For max === null, the bracket is open-ended.
-         */
+        const grua =
+            appData.gruas[selectedGruaIndex];
 
-        let fee = 0;
+        const towPrice =
+            grua && !grua.cotizar
+                ? parseFloat(grua.precio) || 0
+                : 0;
 
-        const tramo =
-            appData.copartFees.find(t => {
-
-                const meetsMinimum =
-                    precio >= t.min;
-
-                const meetsMaximum =
-                    t.max === null ||
-                    precio <= t.max;
-
-                return meetsMinimum && meetsMaximum;
-            });
-
-
-        if (tramo) {
-
-            if (tramo.percentage) {
-
-                fee =
-                    precio * tramo.fee;
-
-            } else {
-
-                fee =
-                    tramo.fee;
-            }
-        }
-
-
-        /*
-         * ========================================================
-         * OTHER COSTS
-         * ========================================================
-         */
+        const fee = getCopartFee(precio);
 
         const flete =
             appData.fletes[port]?.[size] || 0;
@@ -1004,6 +2864,9 @@
         const banco =
             parseFloat(appData.bancoFee) || 0;
 
+        /*
+         * US / international side.
+         */
         const totalUSD =
             precio +
             fee +
@@ -1012,352 +2875,436 @@
             banco +
             custom;
 
+        const baseGTQ =
+            totalUSD * tc;
 
         /*
-         * ========================================================
-         * DISPLAY HELPERS
-         * ========================================================
+         * Guatemala vehicle percentage is applied to the
+         * auction offer after conversion to GTQ.
          */
+        const vehicleRate =
+            parseFloat(
+                appData.guatemala.vehiculo[selectedVehicle]
+            ) || 0;
+
+        const vehicleCostGTQ =
+            precio * tc * vehicleRate;
+
+        const guatemalaFixedGTQ =
+            (parseFloat(appData.guatemala.gruaBarrios) || 0) +
+            (parseFloat(appData.guatemala.tramite) || 0) +
+            (parseFloat(appData.guatemala.gruaGuate) || 0);
+
+        /*
+         * Painting and parts are calculation-specific custom
+         * Guatemala costs entered directly by the user.
+         */
+        const guatemalaCustomGTQ =
+            Math.max(0, pintura) +
+            Math.max(0, repuestos);
+
+        const guatemalaTotalGTQ =
+            vehicleCostGTQ +
+            guatemalaFixedGTQ +
+            guatemalaCustomGTQ;
+
+        const finalTotalGTQ =
+            baseGTQ +
+            guatemalaTotalGTQ;
+
+        const finalTotalUSD =
+            tc > 0
+                ? finalTotalGTQ / tc
+                : 0;
+
 
         const updateRow = (id, usdVal) => {
+            document.getElementById(`u-${id}`).innerText =
+                money(usdVal);
 
-            const safeUSD =
-                Number.isFinite(usdVal)
-                    ? usdVal
-                    : 0;
-
-            const usdElement =
-                document.getElementById(`u-${id}`);
-
-            const gtqElement =
-                document.getElementById(`g-${id}`);
-
-            usdElement.innerText =
-                safeUSD.toLocaleString(
-                    "en-US",
-                    {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    }
-                );
-
-            gtqElement.innerText =
-                (safeUSD * tc).toLocaleString(
-                    "es-GT",
-                    {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    }
-                );
+            document.getElementById(`g-${id}`).innerText =
+                moneyGTQ(usdVal * tc);
         };
 
 
-        /*
-         * ========================================================
-         * UPDATE TABLE
-         * ========================================================
-         */
+        updateRow('car', precio);
+        updateRow('fee', fee);
+        updateRow('mar', flete);
+        updateRow('bank', banco);
+        updateRow('custom', custom);
+        updateRow('total', totalUSD);
 
-        updateRow("car", precio);
-        updateRow("fee", fee);
-        updateRow("tow", towPrice);
-        updateRow("mar", flete);
-        updateRow("bank", banco);
-        updateRow("custom", custom);
-        updateRow("total", totalUSD);
+
+        /*
+         * Grúa has a special display for "A cotizar".
+         */
+        const towUSDEl =
+            document.getElementById('u-tow');
+
+        const towGTQEl =
+            document.getElementById('g-tow');
+
+        if (grua && grua.cotizar) {
+            towUSDEl.innerText = 'A cotizar';
+            towGTQEl.innerText = '—';
+        } else {
+            towUSDEl.innerText = money(towPrice);
+            towGTQEl.innerText = moneyGTQ(towPrice * tc);
+        }
+
+
+        const labelMap = {
+            normal:
+                `Vehículo Normal (+${(appData.guatemala.vehiculo.normal * 100)
+                    .toFixed(1).replace('.0', '')}%)`,
+
+            pickup:
+                `Pick Up (+${(appData.guatemala.vehiculo.pickup * 100)
+                    .toFixed(1).replace('.0', '')}%)`,
+
+            '4x4':
+                `Camioneta 4x4 (+${(appData.guatemala.vehiculo['4x4'] * 100)
+                    .toFixed(1).replace('.0', '')}%)`
+        };
+
+
+        document.getElementById('label-guatemala-vehiculo').innerText =
+            labelMap[selectedVehicle];
+
+        document.getElementById('g-guatemala-vehiculo').innerText =
+            moneyGTQ(vehicleCostGTQ);
+
+        document.getElementById('g-barrios').innerText =
+            moneyGTQ(appData.guatemala.gruaBarrios);
+
+        document.getElementById('g-tramite').innerText =
+            moneyGTQ(appData.guatemala.tramite);
+
+        document.getElementById('g-guate').innerText =
+            moneyGTQ(appData.guatemala.gruaGuate);
+
+        document.getElementById('g-pintura').innerText =
+            moneyGTQ(pintura);
+
+        document.getElementById('g-repuestos').innerText =
+            moneyGTQ(repuestos);
+
+        document.getElementById('g-guatemala-total').innerText =
+            moneyGTQ(guatemalaTotalGTQ);
+
+
+        document.getElementById('final-gtq').innerText =
+            `Q${moneyGTQ(finalTotalGTQ)}`;
+
+        document.getElementById('final-usd').innerText =
+            `≈ $${money(finalTotalUSD)} USD`;
     }
 
-
-    /*
-     * ============================================================
-     * SETTINGS RENDER
-     * ============================================================
-     */
-
     function renderConfig() {
-
-        document.getElementById("cfg-tasa").value =
+        document.getElementById('cfg-tasa').value =
             appData.tipoCambioGTQ;
 
-        document.getElementById("cfg-banco").value =
+        document.getElementById('cfg-banco').value =
             appData.bancoFee;
 
+        document.getElementById('cfg-veh-normal').value =
+            (appData.guatemala.vehiculo.normal * 100).toFixed(2);
 
-        let html = "";
+        document.getElementById('cfg-veh-pickup').value =
+            (appData.guatemala.vehiculo.pickup * 100).toFixed(2);
 
+        document.getElementById('cfg-veh-4x4').value =
+            (appData.guatemala.vehiculo['4x4'] * 100).toFixed(2);
+
+        document.getElementById('cfg-barrios').value =
+            appData.guatemala.gruaBarrios;
+
+        document.getElementById('cfg-tramite').value =
+            appData.guatemala.tramite;
+
+        document.getElementById('cfg-guate').value =
+            appData.guatemala.gruaGuate;
+
+
+        const appearance =
+            appData.appearance || { auto: true, dark: false };
+
+        document.getElementById('cfg-auto-dark').checked =
+            appearance.auto !== false;
+
+        document.getElementById('cfg-dark').checked =
+            !!appearance.dark;
+
+        document.getElementById('cfg-dark').disabled =
+            appearance.auto !== false;
+
+
+        let html = '';
 
         appData.gruas.forEach((g, i) => {
+            const port = getPortForState(g.abr);
+            const priceText = g.cotizar ? 'A cotizar' : `$${money(g.precio)}`;
 
             html += `
-                <div
-                    class="list-item"
-                    style="padding: 10px 16px;"
-                >
-
+                <div class="list-item" style="padding:10px 16px;">
                     <input
                         type="text"
                         class="cfg-abr"
-                        value="${g.abr}"
+                        value="${escapeHTML(g.abr)}"
                         style="
-                            width: 35px;
-                            text-align: left;
-                            color: #000;
-                            font-weight: 600;
+                            width:35px;
+                            text-align:left;
+                            color:var(--text);
+                            font-weight:600;
                         "
                     >
 
                     <input
                         type="text"
                         class="cfg-nom"
-                        value="${g.nombre}"
+                        value="${escapeHTML(g.nombre)}"
                         style="
-                            flex: 1;
-                            text-align: left;
-                            color: #000;
-                            margin-left: 5px;
+                            flex:1;
+                            text-align:left;
+                            color:var(--text);
+                            margin-left:5px;
+                            min-width:0;
                         "
                     >
 
-                    <span
-                        style="
-                            color:#8e8e93;
-                            font-size:15px;
-                            margin:0 5px;
-                        "
-                    >
+                    <span style="
+                        color:var(--secondary);
+                        font-size:15px;
+                        margin:0 5px;
+                    ">
                         $
                     </span>
 
                     <input
                         type="number"
                         class="cfg-precio"
-                        value="${g.precio}"
+                        value="${g.cotizar ? 0 : g.precio}"
                         style="
-                            width: 55px;
-                            text-align: left;
-                            color: #000;
+                            width:70px;
+                            text-align:left;
+                            color:var(--text);
                         "
                     >
 
-                    <select
-                        class="cfg-pto"
+                    <span
                         style="
-                            width: 75px;
-                            font-size: 14px;
+                            width:65px;
+                            text-align:center;
+                            color:var(--secondary);
+                            font-size:13px;
                         "
+                        title="${escapeHTML(priceText)}"
                     >
-
-                        <option
-                            value="California"
-                            ${g.puerto === "California" ? "selected" : ""}
-                        >
-                            CA
-                        </option>
-
-                        <option
-                            value="Florida"
-                            ${g.puerto === "Florida" ? "selected" : ""}
-                        >
-                            FL
-                        </option>
-
-                        <option
-                            value="Philadelphia"
-                            ${g.puerto === "Philadelphia" ? "selected" : ""}
-                        >
-                            PH
-                        </option>
-
-                    </select>
+                        ${g.cotizar ? 'Cotizar' : escapeHTML(port.substring(0, 2).toUpperCase())}
+                    </span>
 
                     <span
                         onclick="eliminarOrigen(${i})"
                         style="
-                            color: #ff3b30;
-                            font-size: 22px;
-                            cursor: pointer;
-                            margin-left: 10px;
+                            color:var(--red);
+                            font-size:22px;
+                            cursor:pointer;
+                            margin-left:10px;
                         "
                     >
                         ⊖
                     </span>
-
-                </div>
-            `;
+                </div>`;
         });
 
-
-        document.getElementById("origins-list").innerHTML =
-            html;
+        document.getElementById('origins-list').innerHTML = html;
     }
-
-
-    /*
-     * ============================================================
-     * ADD ORIGIN
-     * ============================================================
-     */
 
     function agregarOrigen() {
-
         appData.gruas.push({
-            abr: "N/A",
-            nombre: "Nuevo",
+            abr: 'CA',
+            nombre: 'Nuevo Copart',
             precio: 100,
-            puerto: "Florida"
+            puerto: 'California',
+            tipo: 'Grúa',
+            cotizar: false
         });
 
+        appData.locationsVersion = defaultData.locationsVersion;
+
         renderConfig();
-
-        document
-            .getElementById("origins-list")
-            .scrollTo(0, 9999);
+        document.getElementById('origins-list').scrollTo(0, 9999);
     }
-
-
-    /*
-     * ============================================================
-     * DELETE ORIGIN
-     * ============================================================
-     */
 
     function eliminarOrigen(index) {
+        if (!Number.isInteger(index) || index < 0 || index >= appData.gruas.length) {
+            return;
+        }
 
-        if (confirm("¿Eliminar este origen?")) {
-
+        if (confirm('¿Eliminar este origen?')) {
             appData.gruas.splice(index, 1);
 
+            if (selectedGruaIndex >= appData.gruas.length) {
+                selectedGruaIndex = Math.max(0, appData.gruas.length - 1);
+            }
+
             renderConfig();
+            mostrarOrigenSeleccionado();
+            poblarSelects();
+            calcular();
         }
     }
 
-
-    /*
-     * ============================================================
-     * SAVE SETTINGS
-     * ============================================================
-     */
-
     function guardarConfig() {
-
         appData.tipoCambioGTQ =
-            parseFloat(
-                document.getElementById("cfg-tasa").value
-            ) || 7.80;
+            parseFloat(document.getElementById('cfg-tasa').value) || 7.62;
 
         appData.bancoFee =
-            parseFloat(
-                document.getElementById("cfg-banco").value
-            ) || 50;
+            parseFloat(document.getElementById('cfg-banco').value) || 50;
 
+        appData.guatemala.vehiculo.normal =
+            (parseFloat(document.getElementById('cfg-veh-normal').value) || 0) / 100;
 
-        const abrs =
-            document.querySelectorAll(".cfg-abr");
+        appData.guatemala.vehiculo.pickup =
+            (parseFloat(document.getElementById('cfg-veh-pickup').value) || 0) / 100;
 
-        const precios =
-            document.querySelectorAll(".cfg-precio");
+        appData.guatemala.vehiculo['4x4'] =
+            (parseFloat(document.getElementById('cfg-veh-4x4').value) || 0) / 100;
 
-        const noms =
-            document.querySelectorAll(".cfg-nom");
+        appData.guatemala.gruaBarrios =
+            Math.max(
+                0,
+                parseFloat(document.getElementById('cfg-barrios').value) || 0
+            );
 
-        const ptos =
-            document.querySelectorAll(".cfg-pto");
+        appData.guatemala.tramite =
+            Math.max(
+                0,
+                parseFloat(document.getElementById('cfg-tramite').value) || 0
+            );
 
-
-        appData.gruas = [];
-
-
-        for (
-            let i = 0;
-            i < abrs.length;
-            i++
-        ) {
-
-            appData.gruas.push({
-
-                abr:
-                    abrs[i].value,
-
-                precio:
-                    parseFloat(precios[i].value) || 0,
-
-                nombre:
-                    noms[i].value,
-
-                puerto:
-                    ptos[i].value
-            });
-        }
-
-
-        /*
-         * Keep the corrected Copart database even when
-         * settings are saved.
-         */
-
-        appData.copartFees =
-            JSON.parse(
-                JSON.stringify(defaultData.copartFees)
+        appData.guatemala.gruaGuate =
+            Math.max(
+                0,
+                parseFloat(document.getElementById('cfg-guate').value) || 0
             );
 
 
+        const abrs =
+            document.querySelectorAll('.cfg-abr');
+
+        const precios =
+            document.querySelectorAll('.cfg-precio');
+
+        const noms =
+            document.querySelectorAll('.cfg-nom');
+
+
+        const newGruas = [];
+
+        for (let i = 0; i < abrs.length; i++) {
+            const abr =
+                abrs[i].value.trim().toUpperCase();
+
+            const nombre =
+                noms[i].value.trim();
+
+            const original =
+                appData.gruas[i] || {};
+
+            const precio =
+                Math.max(
+                    0,
+                    parseFloat(precios[i].value) || 0
+                );
+
+            const cotizar =
+                !!original.cotizar;
+
+            newGruas.push({
+                abr,
+                nombre,
+                precio: cotizar ? 0 : precio,
+                puerto: getPortForState(abr),
+                tipo: original?.tipo || 'Grúa',
+                cotizar
+            });
+        }
+
+        appData.gruas = newGruas;
+
+        /*
+         * Keep the corrected Copart fee database and current
+         * location-data version from the live HTML.
+         */
+        appData.copartFees = clone(defaultData.copartFees);
+        appData.locationsVersion = defaultData.locationsVersion;
+
+
         localStorage.setItem(
-            "iosCalcData",
+            'iosCalcData',
             JSON.stringify(appData)
         );
 
 
+        if (!appData.gruas[selectedGruaIndex]) {
+            selectedGruaIndex =
+                Math.max(0, appData.gruas.length - 1);
+        }
+
         poblarSelects();
+        renderConfig();
+        alCambiarGrua(selectedGruaIndex);
 
-        alCambiarGrua();
+        switchTab(
+            'calc',
+            document.getElementById('tab-calc')
+        );
 
-        switchTab("calc");
-
-        alert("Ajustes Guardados con Éxito");
+        alert('Ajustes Guardados con Éxito');
     }
 
-
-    /*
-     * ============================================================
-     * TAB SWITCHING
-     * ============================================================
-     */
+    function restablecerDatos() {
+        if (!confirm('Esto eliminará todos los datos guardados en este navegador y recargará la versión actual de la página. ¿Continuar?')) return;
+        localStorage.removeItem('iosCalcData');
+        location.reload();
+    }
 
     function switchTab(tab, clickedElement) {
-
-        document.getElementById("calc-section").style.display =
-            tab === "calc"
-                ? "block"
-                : "none";
-
-        document.getElementById("config-section").style.display =
-            tab === "config"
-                ? "block"
-                : "none";
-
-
-        document
-            .querySelectorAll(".segment")
-            .forEach(el => {
-                el.classList.remove("active");
-            });
-
-
-        if (clickedElement) {
-            clickedElement.classList.add("active");
-        }
+        document.getElementById('calc-section').style.display = tab === 'calc' ? 'block' : 'none';
+        document.getElementById('config-section').style.display = tab === 'config' ? 'block' : 'none';
+        document.querySelectorAll('.segment').forEach(el => el.classList.remove('active'));
+        if (clickedElement) clickedElement.classList.add('active');
     }
 
+    function aplicarApariencia() {
+        const appearance = appData.appearance || { auto: true, dark: false };
+        const shouldDark = appearance.auto !== false
+            ? !!(mediaQuery && mediaQuery.matches)
+            : !!appearance.dark;
+        document.documentElement.classList.toggle('dark-mode', shouldDark);
+    }
 
-    /*
-     * ============================================================
-     * START APP
-     * ============================================================
-     */
+    function aparienciaCambiar() {
+        appData.appearance = {
+            auto: document.getElementById('cfg-auto-dark').checked,
+            dark: document.getElementById('cfg-dark').checked
+        };
+        document.getElementById('cfg-dark').disabled = appData.appearance.auto;
+        localStorage.setItem('iosCalcData', JSON.stringify(appData));
+        aplicarApariencia();
+    }
+
+    if (mediaQuery) {
+        const handler = () => {
+            const appearance = appData.appearance || { auto: true, dark: false };
+            if (appearance.auto !== false) aplicarApariencia();
+        };
+        if (mediaQuery.addEventListener) mediaQuery.addEventListener('change', handler);
+        else if (mediaQuery.addListener) mediaQuery.addListener(handler);
+    }
 
     init();
-
 </script>
-
 </body>
 </html>
