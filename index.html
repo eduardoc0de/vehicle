@@ -2681,9 +2681,40 @@
     }
 
     function poblarSelects() {
-        // Origin selection is now search-based, not a giant <select>.
-        renderLocationResults('');
-        mostrarOrigenSeleccionado();
+    /*
+     * Populate the USA vehicle-size selector.
+     *
+     * The vehicle names already exist in appData.vehiculos
+     * and the freight tables use those exact same names.
+     */
+    const sizeSelect = document.getElementById('size');
+
+    if (sizeSelect) {
+        sizeSelect.innerHTML = '';
+
+        appData.vehiculos.forEach(vehicle => {
+            const option = document.createElement('option');
+
+            option.value = vehicle;
+            option.textContent = vehicle;
+
+            sizeSelect.appendChild(option);
+        });
+
+        /*
+         * Always select the first available size so the calculator
+         * never starts with an empty vehicle-size value.
+         */
+        if (appData.vehiculos.length > 0) {
+            sizeSelect.value = appData.vehiculos[0];
+        }
+    }
+
+    /*
+     * Origin selection is search-based, not a giant <select>.
+     */
+    renderLocationResults('');
+    mostrarOrigenSeleccionado();
     }
 
     function renderLocationResults(query = '') {
